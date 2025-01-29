@@ -3,9 +3,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, View, Text } from 'react-native';
 import icons from '../constant/Icons';
 import { colors } from '../constant/Colors';
-import SearchScreen from '../screens/SearchScreen';
-import StudentList from '../screens/StudentList';
-import TeacherList from '../screens/TeacherList';
 import StudentScreen from '../screens/Role/StudentScreen';
 import MoreOptions from '../screens/MoreOptions';
 
