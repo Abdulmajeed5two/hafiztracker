@@ -21,12 +21,12 @@ import CalenderScreen from '../screens/CalenderScreen';
 import MasjidAuth from '../Auth/MasjidAuth';
 import MasjidTabs from './MasjidTabs';
 import StudentTabs from './StudentTabs';
-import AuthScreen from '../screens/Auth/AuthScreen';
 import AddStudentsScreen from '../screens/AddStudentsScreen';
 import AddTeacherScreen from '../screens/AddTeacherScreen';
 import Drawer from './Drawer';
 import ChangeLang from '../components/ChangeLang';
 import TeacherTabs from './TeacherTabs';
+import ParentTabs from './ParentTabs';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +37,8 @@ const StackNavigator = () => {
         <Stack.Screen name='splash' component={SplashScreen} />
         <Stack.Screen name="home" component={StudentTabs}/>
         <Stack.Screen name='teacher' component={TeacherTabs}/>
+        <Stack.Screen name='MasjidScreen' component={MasjidTabs}/>
+        <Stack.Screen name='parenthome' component={ParentTabs}/>
         <Stack.Screen component={Role} name="role" />
         {/* <Stack.Screen name="Drawer" component={DrawerNavigator} /> */}
         <Stack.Screen name='login' component={LoginScreen}/>
@@ -51,14 +53,12 @@ const StackNavigator = () => {
         <Stack.Screen name='ParentAuth' component={ParentAuth}/>
         <Stack.Screen name='MasjidAuth' component={MasjidAuth}/>
         <Stack.Screen name='Notification' component={NotificationScreen}/>
-        <Stack.Screen name='MasjidScreen' component={MasjidTabs}/>
         <Stack.Screen name='quote' component={Quotes}/>
         <Stack.Screen name='teacherscreen' component={TeacherScreen}/>
         <Stack.Screen name='parent' component={ParentScreen}/>
         <Stack.Screen name='namesofallah' component={Nameof99Allah}/>
         <Stack.Screen name='homework' component={HomeWork}/>
         <Stack.Screen name='calender' component={CalenderScreen}/>
-        <Stack.Screen name='auth' component={AuthScreen} />
         <Stack.Screen name='addstd' component={AddStudentsScreen}/>
         <Stack.Screen name='addteacher' component={AddTeacherScreen}/>
         <Stack.Screen name='drawer' component={Drawer}/>

@@ -4,11 +4,10 @@ import Inputs from '../constant/Inputs';
 import { colors } from '../constant/Colors';
 import Button from '../constant/Buttons';
 import icons from '../constant/Icons';
-import { API_ENDPOINTS } from '../services/apiService';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
 import Toast from 'react-native-toast-message'; 
+import axiosInstance from '../services/axiosInterceptor';
 
 const MasjidAuth = ({ navigation }) => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -52,19 +51,20 @@ const MasjidAuth = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
-        const response = await axios.post(API_ENDPOINTS.Login_Masjid, {
+      const response = await axiosInstance.post('/Masjid/Login', {
             userName: userName,
             password: password,
             deviceId: deviceId,
         });
-        console.log('Login Response:', response.data);
-        
-        const id = response.data.result?.id;
-        const token = response.data.result?.token;
-        const status = response.data.result?.status;
-        
+        console.log('Login Response:', response.data.result.userName);
+
+        const { result } = response.data;
+        const token = result?.token;    
+        const status = result?.status;
+        const username = result?.userName;
+
         if (!token) {
-            throw new Error('Token or User ID is missing in the response');
+            throw new Error('Token is missing in the response');
         }
 
         if (status === 1) {
@@ -76,17 +76,19 @@ const MasjidAuth = ({ navigation }) => {
             });
             return;
         }
-
-        await AsyncStorage.setItem('token', token);
-        await AsyncStorage.setItem('id', id);
-        console.log('ID:', id);
-        console.log('Token:', token);
-        Toast.show({
-            type: 'success',
-            text1: 'Login Successful',
-            text2: 'You have successfully logged in!',
-        });
-        navigation.navigate('MasjidScreen');
+        if (token) {
+            await AsyncStorage.setItem('token', token);
+            await AsyncStorage.setItem('userName', username)
+            console.log('Token:', token);
+            Toast.show({
+                type: 'success',
+                text1: 'Login Successful',
+                text2: 'You have successfully logged in!',
+            });
+            navigation.navigate('MasjidScreen');
+        } else {
+            throw new Error('Invalid Token');
+        }
     } catch (error) {
         console.error('Login Error:', error);
         Toast.show({
@@ -97,9 +99,11 @@ const MasjidAuth = ({ navigation }) => {
     }
 };
 
+
+
   const handleRegister = async () => {
     try {
-      const response = await axios.post(API_ENDPOINTS.Register_Masjid, {
+      const response = await axiosInstance.post('/Masjid/RegisterMasjid', {
         userName: userName,
         password: password,
         masjidName: masjidName,

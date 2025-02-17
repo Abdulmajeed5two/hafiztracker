@@ -1,9 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Hero from '../../components/Hero'
 import ContainerSection from '../../components/ContainerSection'
 import icons from '../../constant/Icons'
 import Drawer from '../../routes/Drawer'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 
 const sections = [
@@ -40,15 +41,33 @@ const sections = [
 ];
 
 const TeacherScreen = () => {
-    const drawerRef = useRef();
+  const [userName, setUserName] = useState('');
+  const drawerRef = useRef();
+
+  const getUsernameFromStorage = async () => {
+    try {
+      const storedUsername = await AsyncStorage.getItem('userName');
+      if (storedUsername !== null) {
+        setUserName(storedUsername);
+      } else {
+        console.log('No username stored');
+      }
+    } catch (error) {
+      console.error('Error retrieving username:', error);
+    }
+  };
   
+
+
+  useEffect(() => {
+    getUsernameFromStorage();
+  }, []);
 
   const handleMenuPress = () => {
     if (drawerRef.current) {
       drawerRef.current.openDrawer();
     }
   };
-
   return (
     <View style={styles.container}>
             <Drawer ref={drawerRef} />
@@ -58,7 +77,7 @@ const TeacherScreen = () => {
         title="Home"
         shareIcon={icons.Share}
         userIcon={icons.Teacher}
-        userName="Imran Khan"
+        userName={userName}
         userLocation="Karachi, Pakistan"
         onMenuPress={handleMenuPress}
         />

@@ -18,6 +18,35 @@ const AddStudentsScreen = ({ navigation }) => {
     setStudents([...students, { name: '', dob: '', gender: '' }]);
   };
 
+  const RegisterStudents = async () => {
+    if (!formData.userName || !formData.teacherName || !formData.email || !formData.password) {
+      Alert.alert('Error', 'Please fill all required fields.');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match.');
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formData);
+      console.log('Success:', response.data);
+
+      // Show toast success message
+      Toast.show({
+        type: 'success',
+        text1: 'Registration Successful',
+        text2: 'Teacher has been registered successfully!',
+      });
+
+      navigation.goBack();
+    } catch (error) {
+      console.error('API Error:', error.response?.data || error.message);
+      Alert.alert('Error', 'Failed to register teacher.');
+    }
+  };
+
   const handleInputChange = (index, field, value) => {
     const newStudents = [...students];
     newStudents[index][field] = value;

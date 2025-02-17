@@ -3,15 +3,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, View, Text } from 'react-native';
 import icons from '../constant/Icons';
 import { colors } from '../constant/Colors';
-import SearchScreen from '../screens/SearchScreen';
-import StudentList from '../screens/StudentList';
-import TeacherList from '../screens/TeacherList';
-import MasjidScreen from '../screens/Role/MasjidScreen';
-import TeacherScreen from '../screens/Role/TeacherScreen';
+import StudentScreen from '../screens/Role/StudentScreen';
+import MoreOptions from '../screens/MoreOptions';
+import ParentScreen from '../screens/Role/ParentScreen';
 
 const Tab = createBottomTabNavigator();
 
-const TeacherTabs = () => {
+const ParentTabs = () => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -26,8 +24,8 @@ const TeacherTabs = () => {
       }}
     >
     <Tab.Screen
-        name="TeacherScreen"
-        component={TeacherScreen}
+        name="Home"
+        component={ParentScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <View>
@@ -44,38 +42,19 @@ const TeacherTabs = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="Search"
-        component={SearchScreen}
+       <Tab.Screen
+        name="More"
+        component={MoreOptions}
         options={{
           tabBarIcon: ({ focused }) => (
             <View>
               <Image
-                source={icons.Search}
+                source={icons.Apps}
                 style={{
-                  width: 30,
-                  height: 30,
-                  tintColor: focused ? colors.Greenlight : colors.gray,
-                  marginTop:26
-                }}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="StdList"
-        component={StudentList}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View>
-              <Image
-                source={icons.StdList}
-                style={{
-                  width: 30,
-                  height: 30,
-                  tintColor: focused ? colors.Greenlight : colors.gray,
-                  marginTop:26
+                width: 30,
+                height: 30,
+                tintColor: focused ? colors.Greenlight : colors.gray,
+                marginTop:26
                 }}
               />
             </View>
@@ -86,4 +65,4 @@ const TeacherTabs = () => {
   );
 };
 
-export default TeacherTabs;
+export default ParentTabs;

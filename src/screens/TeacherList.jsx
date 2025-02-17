@@ -1,21 +1,46 @@
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
-
-const teacherData = [
-  { id: '1', name: 'Abdul Rahman', subject: 'Quran Recitation', experience: '5 years' },
-  { id: '2', name: 'Fatima Khan', subject: 'Hadith Studies', experience: '7 years' },
-  { id: '3', name: 'Yusuf Ahmed', subject: 'Fiqh (Jurisprudence)', experience: '4 years' },
-  { id: '4', name: 'Aisha Malik', subject: 'Seerah (Prophetic Biography)', experience: '6 years' },
-  { id: '5', name: 'Omar Hassan', subject: 'Tajweed (Quranic Pronunciation)', experience: '8 years' },
-  { id: '6', name: 'Zainab Ali', subject: 'Islamic History', experience: '3 years' },
-  { id: '7', name: 'Bilal Hussain', subject: 'Aqeedah (Islamic Creed)', experience: '9 years' },
-  { id: '8', name: 'Hafsa Iqbal', subject: 'Tafsir (Quranic Exegesis)', experience: '5 years' },
-  { id: '9', name: 'Ibrahim Saleem', subject: 'Arabic Language', experience: '10 years' },
-  { id: '10', name: 'Maryam Ahmed', subject: 'Islamic Ethics', experience: '2 years' },
-];
+import axiosInstance from '../services/axiosInterceptor';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FlatList } from 'react-native-gesture-handler';
 
 const TeacherList = ({ navigation }) => {
+ const [teachersData, setTeachersData] = useState([]);
+
+useEffect (() => {
+  handleGetTeachers();
+})
+  
+const handleGetTeachers = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    
+    if (!token) {
+      console.log('No token found');
+      return;
+    }
+    const response = await axiosInstance.post(
+      '/Teacher/GetAllTeachers',
+      {
+        pageNumber: 1,  
+        pageSize: 10, 
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    setTeachersData(response.data.result.data)
+    console.log('Response Data:', response.data.result.data);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+
   return (
     <View style={styles.container}>
       <Header
@@ -23,20 +48,24 @@ const TeacherList = ({ navigation }) => {
         onMenuPress={() => console.log('Menu Pressed')}
         onNotifyPress={() => navigation.navigate('Notification')}
       />
+      
       <ScrollView style={styles.tableContainer}>
         <View style={styles.tableHeader}>
-          <Text style={styles.headerText}>Name</Text>
-          <Text style={styles.headerText}>Subject</Text>
-          <Text style={styles.headerText}>Experience</Text>
+          <Text style={styles.headerText}>Teacher Name</Text>
+          <Text style={styles.headerText}>Masjid</Text>
+          <Text style={styles.headerText}>Phone</Text>
         </View>
 
-        {teacherData.map((teacher) => (
-          <View key={teacher.id} style={styles.tableRow}>
-            <Text style={styles.rowText}>{teacher.name}</Text>
-            <Text style={styles.rowText}>{teacher.subject}</Text>
-            <Text style={styles.rowText}>{teacher.experience}</Text>
-          </View>
-        ))}
+        <FlatList
+          data={teachersData} 
+          renderItem={({item}) => (
+            <View style={styles.tableRow}>
+              <Text style={styles.rowText}>{item.teacherName}</Text>
+              <Text style={styles.rowText}>{item.masjidId}</Text>
+              <Text style={styles.rowText}>{item.phone}</Text>
+              </View>
+              )}
+          />
       </ScrollView>
     </View>
   );

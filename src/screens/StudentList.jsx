@@ -1,22 +1,45 @@
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
-
-// Dummy data for the student list with Islamic names
-const studentData = [
-  { id: '1', name: 'Ahmed Ali', grade: 'Grade 10', attendance: '95%' },
-  { id: '2', name: 'Fatima Khan', grade: 'Grade 11', attendance: '90%' },
-  { id: '3', name: 'Yusuf Ahmed', grade: 'Grade 9', attendance: '98%' },
-  { id: '4', name: 'Aisha Rahman', grade: 'Grade 12', attendance: '92%' },
-  { id: '5', name: 'Omar Hassan', grade: 'Grade 10', attendance: '89%' },
-  { id: '6', name: 'Zainab Malik', grade: 'Grade 11', attendance: '96%' },
-  { id: '7', name: 'Bilal Hussain', grade: 'Grade 9', attendance: '91%' },
-  { id: '8', name: 'Hafsa Iqbal', grade: 'Grade 12', attendance: '94%' },
-  { id: '9', name: 'Ibrahim Saleem', grade: 'Grade 10', attendance: '97%' },
-  { id: '10', name: 'Maryam Ahmed', grade: 'Grade 11', attendance: '93%' },
-];
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../services/axiosInterceptor';
+import { FlatList } from 'react-native-gesture-handler';
 
 const StudentList = () => {
+  const [stdData, setStdData] = useState([]);
+
+  useEffect(() => {
+    handleGetStudents();
+  })
+    
+  const handleGetStudents = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+      const response = await axiosInstance.post(
+        '/Student/GetAllStudents',
+        {
+          pageNumber: 1,  
+          pageSize: 10, 
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setStdData(response.data.result.data);
+      console.log('Response Data:', response.data.result.data);
+  
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
   return (
     <View style={styles.container}>
       <Header
@@ -24,22 +47,26 @@ const StudentList = () => {
         onMenuPress={() => console.log('Menu Pressed')}
         onNotifyPress={() => console.log('Notification Pressed')}
       />
+     
       <ScrollView style={styles.tableContainer}>
         {/* Table Header */}
         <View style={styles.tableHeader}>
-          <Text style={styles.headerText}>Name</Text>
-          <Text style={styles.headerText}>Grade</Text>
-          <Text style={styles.headerText}>Attendance</Text>
+          <Text style={styles.headerText}>student Name</Text>
+          <Text style={styles.headerText}>masjidId</Text>
+          <Text style={styles.headerText}>phone</Text>
         </View>
 
         {/* Table Rows */}
-        {studentData.map((student) => (
-          <View key={student.id} style={styles.tableRow}>
-            <Text style={styles.rowText}>{student.name}</Text>
-            <Text style={styles.rowText}>{student.grade}</Text>
-            <Text style={styles.rowText}>{student.attendance}</Text>
+        <FlatList
+      data={stdData} 
+      renderItem={({item}) => (
+        <View style={styles.tableRow}>
+          <Text style={styles.rowText}>{item.studentName}</Text>
+          <Text style={styles.rowText}>{item.masjidId}</Text>
+          <Text style={styles.rowText}>{item.phone}</Text>
           </View>
-        ))}
+          )}
+      />
       </ScrollView>
     </View>
   );
@@ -58,7 +85,7 @@ const styles = StyleSheet.create({
   tableHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: '#4CAF50', // Green header
+    backgroundColor: '#4CAF50',
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderTopLeftRadius: 8,

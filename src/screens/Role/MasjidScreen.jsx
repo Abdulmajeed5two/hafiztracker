@@ -45,7 +45,7 @@ const MasjidScreen = ({ navigation }) => {
 
   const getUsernameFromStorage = async () => {
     try {
-      const storedUsername = await AsyncStorage.getItem('username');
+      const storedUsername = await AsyncStorage.getItem('userName');
       if (storedUsername !== null) {
         setUserName(storedUsername);
       } else {

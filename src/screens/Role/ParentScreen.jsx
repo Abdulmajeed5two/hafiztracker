@@ -1,36 +1,59 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useRef } from 'react'
+import React from 'react'
 import Hero from '../../components/Hero'
-import ContainerSection from '../../components/ContainerSection'
 import icons from '../../constant/Icons'
-import Drawer from '../../routes/Drawer'
-
-const ParentScreen = () => {
-    const drawerRef = useRef();
+import ContainerSection from '../../components/ContainerSection'
 
 
-    const handleMenuPress = () => {
-      if (drawerRef.current) {
-        drawerRef.current.openDrawer();
-      }
-    };
-  
+const sections = [
+  {
+    icon: icons.Clock,
+    label: { en: 'Prayer Time', other: 'نماز کا وقت' },
+    route: 'PrayTime'
+  },
+  {
+    icon: icons.Calendar,
+    label: { en: 'Calendar', other: 'کالنڈر' },
+    route: 'calender'
+  },
+  {
+    icon: icons.Allah,
+    label: { en: '99 Names', other: '99 نام' },
+    route: 'namesofallah'
+  },
+  {
+    icon: icons.Notify,
+    label: { en: 'Notification', other: 'نوٹیفیکیشن' },
+    route: 'Notification'
+  },
+  {
+    icon: icons.Quran,
+    label: { en: 'Homework', other: 'پڑھیں' },
+    route: 'homework'
+  },
+  {
+    icon: icons.Quotes,
+    label: { en: 'Quotes', other: 'اقتباسات' },
+    route: 'quote'
+  }
+];
+
+const ParentScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
-      <Drawer ref={drawerRef} />
       <View style={styles.header}>
       <Hero
         menuIcon={icons.Menu}
         title="Home"
         shareIcon={icons.Share}
         userIcon={icons.Parent}
-        userName="Salman"
+        userName="Suleman"
         userLocation="Karachi, Pakistan"
         onMenuPress={() => navigation.navigate('drawer')}
       />
       </View>
       <View style={styles.containerSection}>
-        <ContainerSection />
+        <ContainerSection sections={sections} />
       </View>
     </View>
   )
@@ -39,11 +62,8 @@ const ParentScreen = () => {
 export default ParentScreen
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-      },
-      header: {
-        flex: 1,
-        zIndex: 1, 
-      },    
+  container: {
+    flex: 1,
+  }
+
 })

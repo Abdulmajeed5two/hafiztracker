@@ -13,6 +13,8 @@ export const API_ENDPOINTS = {
   Login_Masjid: `${BASE_URL}/Masjid/Login`,
   Masjid_Verification: `${BASE_URL}/Masjid/VerificationCheck`,
 
+  
+
 
 
 };

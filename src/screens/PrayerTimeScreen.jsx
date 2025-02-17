@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,9 +16,11 @@ import { colors } from '../constant/Colors';
 import icons from '../constant/Icons';
 import BackButton from '../components/BackButton';
 import azan from '../assets/sound/salah.mp3'
+import { LanguageContext } from '../context/LanguageContext';
 
 
 const PrayerTimeScreen = ({navigation}) => {
+  const {language} = useContext(LanguageContext);
   const [coordinates, setCoordinates] = useState(null);
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [currentPrayer, setCurrentPrayer] = useState(null);
@@ -185,11 +187,11 @@ const PrayerTimeScreen = ({navigation}) => {
           <View style={styles.sevenDayTableContainer}>
             <View style={styles.sevenDayTableHeader}>
               <Text style={[styles.sevenDayTableHeaderCell, styles.dateHeaderCell]}>Date</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>Fajr</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>Dhuhr</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>Asr</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>Maghrib</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>Isha</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === "English" ? 'Fajr':'فجر'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Dhuhr':'ظہر'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Asr':'عصر'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Maghrib':'مغرب'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Isha':'عشاء'}</Text>
             </View>
             <FlatList
               data={sevenDayPrayerTimes}

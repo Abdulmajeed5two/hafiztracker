@@ -17,7 +17,7 @@ const SplashScreen = () => {
         const token = await AsyncStorage.getItem('token');
         setTimeout(() => {
           if (token) {
-            navigation.navigate('MasjidScreen');
+            navigation.navigate('role');
           } else {
             navigation.navigate('role');
           }
