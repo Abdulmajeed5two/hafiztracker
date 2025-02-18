@@ -7,6 +7,7 @@ import icons from '../constant/Icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../services/axiosInterceptor';
 import DeviceInfo from 'react-native-device-info';
+import Toast from 'react-native-toast-message';
 
 
 const ParentAuth = ({ navigation }) => {
@@ -116,6 +117,8 @@ const ParentAuth = ({ navigation }) => {
         </View>
         <Button title="Sign in"  onPress={handleLogin}/>
       </View>
+      <Toast />
+      
     </View>
   );
 };

@@ -37,6 +37,9 @@ const icons = {
   Logout: require('../assets/icons/logout.png'),
   Cross: require('../assets/icons/cross.png'),
   Alif: require('../assets/icons/alif.png'),
+  Madarsa: require('../assets/icons/school.png'),
+  Next: require('../assets/icons/next.png'),
+  Prev: require('../assets/icons/pre.png'),
 
   //images
   Student: require('../assets/img/std.jpg'),

@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, View, Text } from 'react-native';
 import icons from '../constant/Icons';
 import { colors } from '../constant/Colors';
-import StudentScreen from '../screens/Role/StudentScreen';
+import StudentScreen from '../screens/student/StudentScreen';
 import MoreOptions from '../screens/MoreOptions';
 
 const Tab = createBottomTabNavigator();

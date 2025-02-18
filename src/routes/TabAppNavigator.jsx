@@ -4,9 +4,9 @@ import { Image, View, Text } from 'react-native';
 import icons from '../constant/Icons';
 import { colors } from '../constant/Colors';
 import SearchScreen from '../screens/SearchScreen';
-import StudentList from '../screens/StudentList';
-import TeacherList from '../screens/TeacherList';
-import StudentScreen from '../screens/Role/StudentScreen';
+import StudentList from '../screens/student/StudentList';
+import TeacherList from '../screens/teacher/TeacherList';
+import StudentScreen from '../screens/student/StudentScreen';
 
 const Tab = createBottomTabNavigator();
 

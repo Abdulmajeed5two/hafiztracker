@@ -123,6 +123,7 @@ const TeacherAuth = ({ navigation }) => {
         </View>
         <Button title="Sign in" onPress={handleLogin} />
       </View>
+      <Toast />
     </View>
   );
 };

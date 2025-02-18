@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import React from 'react';
-import Header from '../components/Header';
+import Header from '../../components/Header';
+import ContainerSection from '../../components/ContainerSection';
+import icons from '../../constant/Icons';
 
 const homeworkData = [
   {
@@ -34,6 +36,13 @@ const homeworkData = [
     detail: 'Recite with proper Tajweed',
   },
 ];
+const sections = [
+  {
+    icon: icons.Alif,
+    label: { en: 'Add HomeWork', other: 'ہوم ورک شامل کریں' },
+    route: 'homeworkform'
+  },
+];
 
 const HomeWork = () => {
   return (
@@ -43,6 +52,7 @@ const HomeWork = () => {
         onMenuPress={() => console.log('Menu Pressed')}
         onNotifyPress={() => console.log('Notification Pressed')}
       />
+        <ContainerSection sections={sections} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.tableHeader}>
           <Text style={styles.headerText}>Date</Text>
@@ -56,7 +66,7 @@ const HomeWork = () => {
             <Text style={styles.rowText}>{homework.surah}</Text>
             <Text style={styles.rowText}>{homework.detail}</Text>
           </View>
-        ))}
+        ))} 
       </ScrollView>
     </View>
   );

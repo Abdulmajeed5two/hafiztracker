@@ -1,25 +1,28 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View, TextInput, ScrollView } from 'react-native';
 import React, { useState } from 'react';
-import Inputs from '../constant/Inputs';
-import { colors } from '../constant/Colors';
-import Button from '../constant/Buttons';
-import icons from '../constant/Icons';
-import CustomDropdown from '../components/CustomDropdown';
+import Inputs from '../../constant/Inputs';
+import { colors } from '../../constant/Colors';
+import Button from '../../constant/Buttons';
+import icons from '../../constant/Icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddStudentsScreen = ({ navigation }) => {
-  const [students, setStudents] = useState([{ name: '', dob: '', gender: '' }]);
-  const genderOptions = [
-    { label: 'Male', value: 'male' },
-    { label: 'Female', value: 'female' },
-    { label: 'Other', value: 'other' },
-  ];
-
-  const addStudent = () => {
-    setStudents([...students, { name: '', dob: '', gender: '' }]);
-  };
-
+  const [formData, setFormData] = useState({
+    studentName: '',
+    userName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    whatsapp: '',
+    parentId: '',
+    emergencyContact: '',
+    area: '',
+    address: '',
+    });
+  
   const RegisterStudents = async () => {
-    if (!formData.userName || !formData.teacherName || !formData.email || !formData.password) {
+    if (!formData.userName || !formData.studentName || !formData.email || !formData.password) {
       Alert.alert('Error', 'Please fill all required fields.');
       return;
     }
@@ -30,7 +33,8 @@ const AddStudentsScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formData);
+      const token = await AsyncStorage.getItem('token')
+      const response = await axiosInstance.post('/Student/RegisterStudent', formData);
       console.log('Success:', response.data);
 
       // Show toast success message
@@ -47,10 +51,8 @@ const AddStudentsScreen = ({ navigation }) => {
     }
   };
 
-  const handleInputChange = (index, field, value) => {
-    const newStudents = [...students];
-    newStudents[index][field] = value;
-    setStudents(newStudents);
+  const handleInputChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -63,36 +65,23 @@ const AddStudentsScreen = ({ navigation }) => {
           Student Registration
         </Text>
       </View>
-      <ScrollView style={styles.formContainer}>
-        {students.map((student, index) => (
-          <View key={index} style={styles.inputContainer}>
-            <Inputs 
-              placeholder="Full Name" 
-              value={student.name}
-              onChangeText={(text) => handleInputChange(index, 'name', text)}
-            />
-            <CustomDropdown
-              data={genderOptions}
-              placeholder="Select Gender"
-              onSelect={(item) => handleInputChange(index, 'gender', item.value)}
-            />
-            <Text style={styles.label}>Date of Birth</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Select Date of Birth"
-              value={student.dob}
-              onChangeText={(text) => handleInputChange(index, 'dob', text)}
-            />
+      <ScrollView style={styles.formContainer} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+          <View style={styles.inputContainer}>
+            <Inputs placeholder="Student Name" value={formData.studentName} onChangeText={(text) => handleInputChange('studentName', text)} />
+            <Inputs placeholder="User Name" value={formData.userName} onChangeText={(text) => handleInputChange('userName', text)} />
+          <Inputs placeholder="Email" value={formData.email} onChangeText={(text) => handleInputChange('email', text)} />
+          <Inputs placeholder="Password" secureTextEntry value={formData.password} onChangeText={(text) => handleInputChange('password', text)} />
+          <Inputs placeholder="Confirm Password" secureTextEntry value={formData.confirmPassword} onChangeText={(text) => handleInputChange('confirmPassword', text)} />
+          <Inputs placeholder="Phone" value={formData.phone} onChangeText={(text) => handleInputChange('phone', text)} />
+          <Inputs placeholder="WhatsApp" value={formData.whatsApp} onChangeText={(text) => handleInputChange('whatsApp', text)} />
+          <Inputs placeholder="Area" value={formData.area} onChangeText={(text) => handleInputChange('area', text)} />
+          <Inputs placeholder="Address" value={formData.address} onChangeText={(text) => handleInputChange('address', text)} />
+          <Inputs placeholder="emergencyContact" value={formData.emergencyContact} onChangeText={(text) => handleInputChange('emergencyContact', text)} />
           </View>
-        ))}
-        <TouchableOpacity onPress={addStudent}>
-          <Text style={styles.addMoreText}>
-            Add More Student
-          </Text>
-        </TouchableOpacity>
+      
       </ScrollView>
-      <View style={styles.buttonContainer}>
-        <Button title="Register Now" />
+      <View style={styles.buttonContainer} >
+        <Button title="Register Now" onPress={RegisterStudents}/>
       </View>
     </View>
   );

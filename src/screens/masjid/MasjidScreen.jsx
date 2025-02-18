@@ -25,18 +25,19 @@ const sections = [
   {
     icon: icons.TeacherList,
     label: { en: 'Add Teacher', other: 'نوٹیفیکیشن' },
-    route: 'addteacher',
+    route: 'teachlist',
   },
   {
     icon: icons.StdList,
     label: { en: 'Add Student', other: 'پڑھیں' },
-    route: 'addstd',
+    route: 'stdlist',
   },
   {
-    icon: icons.Quotes,
-    label: { en: 'Quotes', other: 'اقتباسات' },
-    route: 'quote',
+    icon: icons.Parent,
+    label: { en: 'Parents', other: 'والدین' },
+    route: 'addparents',
   },
+  
 ];
 
 const MasjidScreen = ({ navigation }) => {

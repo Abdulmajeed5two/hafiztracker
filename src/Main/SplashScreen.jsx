@@ -15,17 +15,35 @@ const SplashScreen = () => {
     const checkTokenAndRedirect = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
+        const role = await AsyncStorage.getItem('userRole');
+        console.log("data..........", token, role);
         setTimeout(() => {
-          if (token) {
-            navigation.navigate('role');
+          if (token && role) {
+            switch(role) {
+              case 'Student':
+                navigation.navigate('home');
+                break;
+              case 'Teacher':
+                navigation.navigate('teacher'); 
+                break;
+              case 'Parent':
+                navigation.navigate('parenthome');
+                break;
+              case 'Masjid':
+                navigation.navigate('MasjidScreen');
+                break;
+              default:
+                navigation.navigate('role'); 
+                break;
+            }
           } else {
             navigation.navigate('role');
           }
           setIsLoading(false);
         }, 4000);
       } catch (error) {
-        console.error('Error checking token:', error);
-        navigation.navigate('role'); 
+        console.error('Error checking token or role:', error);
+        navigation.navigate('role'); // If error occurs, navigate to role selection
       }
     };
 

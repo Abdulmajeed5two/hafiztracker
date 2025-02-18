@@ -13,20 +13,28 @@ import TeacherAuth from '../Auth/TeacherAuth';
 import ParentAuth from '../Auth/ParentAuth';
 import NotificationScreen from '../screens/NotificationScreen';
 import Quotes from '../screens/Quotes';
-import TeacherScreen from '../screens/Role/TeacherScreen';
-import ParentScreen from '../screens/Role/ParentScreen';
+import TeacherScreen from '../screens/teacher/TeacherScreen';
+import ParentScreen from '../screens/parent/ParentScreen';
 import Nameof99Allah from '../screens/Nameof99Allah';
-import HomeWork from '../screens/HomeWork';
+import HomeWork from '../screens/homework/HomeWork';
 import CalenderScreen from '../screens/CalenderScreen';
 import MasjidAuth from '../Auth/MasjidAuth';
 import MasjidTabs from './MasjidTabs';
 import StudentTabs from './StudentTabs';
-import AddStudentsScreen from '../screens/AddStudentsScreen';
-import AddTeacherScreen from '../screens/AddTeacherScreen';
+import AddStudentsScreen from '../screens/student/AddStudentsScreen';
+import AddTeacherScreen from '../screens/teacher/AddTeacherScreen';
 import Drawer from './Drawer';
 import ChangeLang from '../components/ChangeLang';
 import TeacherTabs from './TeacherTabs';
 import ParentTabs from './ParentTabs';
+import AddParentsScreen from '../screens/parent/AddParentsScreen';
+import ParentsList from '../screens/parent/ParentsList';
+import AyatScreen from '../screens/ayat/AyatScreen';
+import AddHomeWorkForm from '../screens/homework/AddHomeWorkForm';
+import CampusScreen from '../screens/campus/CampusScreen';
+import AddCampus from '../screens/campus/AddCampus';
+import StudentList from '../screens/student/StudentList';
+import TeacherList from '../screens/teacher/TeacherList';
 
 const Stack = createNativeStackNavigator();
 
@@ -58,11 +66,19 @@ const StackNavigator = () => {
         <Stack.Screen name='parent' component={ParentScreen}/>
         <Stack.Screen name='namesofallah' component={Nameof99Allah}/>
         <Stack.Screen name='homework' component={HomeWork}/>
+        <Stack.Screen name='homeworkform' component={AddHomeWorkForm}/>
         <Stack.Screen name='calender' component={CalenderScreen}/>
         <Stack.Screen name='addstd' component={AddStudentsScreen}/>
         <Stack.Screen name='addteacher' component={AddTeacherScreen}/>
+        <Stack.Screen name='addparents' component={AddParentsScreen}/>
+        <Stack.Screen name='parentslist' component={ParentsList}/>
         <Stack.Screen name='drawer' component={Drawer}/>
         <Stack.Screen name='lang' component={ChangeLang}/>
+        <Stack.Screen name='ayat' component={AyatScreen}/>
+        <Stack.Screen name='campus' component={CampusScreen}/>
+        <Stack.Screen name='addcampus' component={AddCampus}/>
+        <Stack.Screen name='stdlist' component={StudentList}/>
+        <Stack.Screen name='teachlist' component={TeacherList}/>
     </Stack.Navigator>
   )
 }

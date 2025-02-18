@@ -3,9 +3,19 @@ import React, { useContext } from 'react';
 import icons from '../constant/Icons'; // Ensure icons.Teacher, icons.Student, etc., are correctly defined here.
 import { colors } from '../constant/Colors';
 import { LanguageContext } from '../context/LanguageContext';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const Role = ({ navigation }) => {
   const { language } = useContext(LanguageContext);
+
+  const setRoleInStorage = async (role) => {
+    try {
+      await AsyncStorage.setItem('userRole', role); // Save the role in AsyncStorage
+      console.log(`${role} saved in AsyncStorage!`);
+    } catch (error) {
+      console.error('Error saving role to AsyncStorage:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -14,29 +24,49 @@ const Role = ({ navigation }) => {
       </Text>
 
       <View style={styles.row}>
-        <TouchableOpacity style={styles.box} onPress={() => navigation.navigate('StdAuth')}>
+        <TouchableOpacity
+          style={styles.box}
+          onPress={() => {
+            setRoleInStorage('Student'); // Set role to 'Student' in AsyncStorage
+            navigation.navigate('StdAuth');
+          }}
+        >
           <Image source={icons.Man} style={styles.icon} />
           <Text style={styles.boxText}>{language === 'English' ? 'Student' : 'طالب علم'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.box} onPress={() => navigation.navigate('TeacherAuth')}>
+        <TouchableOpacity
+          style={styles.box}
+          onPress={() => {
+            setRoleInStorage('Teacher'); // Set role to 'Teacher' in AsyncStorage
+            navigation.navigate('TeacherAuth');
+          }}
+        >
           <Image source={icons.Teacher} style={styles.icon} />
           <Text style={styles.boxText}>{language === 'English' ? 'Teacher' : 'استاد'}</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.row}>
-        <TouchableOpacity style={styles.box} onPress={() => navigation.navigate('ParentAuth')}>
+        <TouchableOpacity
+          style={styles.box}
+          onPress={() => {
+            setRoleInStorage('Parent');
+            navigation.navigate('ParentAuth');
+          }}
+        >
           <Image source={icons.Parent} style={styles.icon} />
           <Text style={styles.boxText}>{language === 'English' ? 'Parent' : 'والدین'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.box} onPress={() => navigation.navigate('MasjidAuth')}>
+        <TouchableOpacity
+          style={styles.box}
+          onPress={() => {
+            setRoleInStorage('Masjid');
+            navigation.navigate('MasjidAuth');
+          }}
+        >
           <Image source={icons.Masjid} style={styles.icon} />
           <Text style={styles.boxText}>{language === 'English' ? 'Masjid' : 'مسجد'}</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.box} onPress={() => navigation.navigate('login')}>
-          <Image source={icons.Manage} style={styles.icon} />
-          <Text style={styles.boxText}>{language === 'English' ? 'Management' : 'انتظام'}</Text>
-        </TouchableOpacity> */}
       </View>
     </View>
   );

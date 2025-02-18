@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Image, View, Text } from 'react-native';
 import icons from '../constant/Icons';
 import { colors } from '../constant/Colors';
-import StudentScreen from '../screens/Role/StudentScreen';
+import StudentScreen from '../screens/student/StudentScreen';
 import MoreOptions from '../screens/MoreOptions';
-import ParentScreen from '../screens/Role/ParentScreen';
+import ParentScreen from '../screens/parent/ParentScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -61,6 +61,7 @@ const ParentTabs = () => {
           ),
         }}
       />
+      
     </Tab.Navigator>
   );
 };

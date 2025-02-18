@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const TeacherHome = () => {
+const AddHomeWorkForm = () => {
   return (
     <View>
-      <Text>TeacherHome</Text>
+      <Text>AddHomeWorkScreen</Text>
     </View>
   )
 }
 
-export default TeacherHome
+export default AddHomeWorkForm
 
 const styles = StyleSheet.create({})

@@ -1,12 +1,13 @@
 import { Image, StyleSheet, Text, View, Alert, ScrollView, ToastAndroid } from 'react-native';
 import React, { useState } from 'react';
-import Inputs from '../constant/Inputs';
-import { colors } from '../constant/Colors';
-import Button from '../constant/Buttons';
-import icons from '../constant/Icons';
-import CustomDropdown from '../components/CustomDropdown';
-import axiosInstance from '../services/axiosInterceptor';
+import Inputs from '../../constant/Inputs';
+import { colors } from '../../constant/Colors';
+import Button from '../../constant/Buttons';
+import icons from '../../constant/Icons';
+import CustomDropdown from '../../components/CustomDropdown';
+import axiosInstance from '../../services/axiosInterceptor';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddTeacherScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -48,7 +49,12 @@ const AddTeacherScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formData);
+      const token = await AsyncStorage.getItem('token')
+      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formData,{
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       console.log('Success:', response.data);
 
       // Show toast success message

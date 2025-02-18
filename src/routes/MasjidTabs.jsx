@@ -4,9 +4,10 @@ import { Image, View, Text } from 'react-native';
 import icons from '../constant/Icons';
 import { colors } from '../constant/Colors';
 import SearchScreen from '../screens/SearchScreen';
-import StudentList from '../screens/StudentList';
-import TeacherList from '../screens/TeacherList';
-import MasjidScreen from '../screens/Role/MasjidScreen';
+import StudentList from '../screens/student/StudentList';
+import TeacherList from '../screens/teacher/TeacherList';
+import MasjidScreen from '../screens/masjid/MasjidScreen';
+import MasjidMoreOptions from '../screens/masjid/MasjidMoreOptions';
 
 const Tab = createBottomTabNavigator();
 
@@ -62,33 +63,14 @@ const MasjidTabs = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="StdList"
-        component={StudentList}
+       <Tab.Screen
+        name="More"
+        component={MasjidMoreOptions}
         options={{
           tabBarIcon: ({ focused }) => (
             <View>
               <Image
-                source={icons.StdList}
-                style={{
-                  width: 30,
-                  height: 30,
-                  tintColor: focused ? colors.Greenlight : colors.gray,
-                  marginTop:26
-                }}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="TeacherList"
-        component={TeacherList}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View>
-              <Image
-                source={icons.TeacherList}
+                source={icons.Apps}
                 style={{
                 width: 30,
                 height: 30,
