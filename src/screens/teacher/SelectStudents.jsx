@@ -1,46 +1,49 @@
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import React, { useContext } from 'react';
-import Header from '../../components/Header';
 import icons from '../../constant/Icons';
 import { FlatList } from 'react-native-gesture-handler';
 import { width } from '../../constant/Size';
 import { colors } from '../../constant/Colors';
-import { ParentsContext } from '../../context/ParentsContext';
+import { StudentContext } from '../../context/StudentContext';
+import Appbar from '../../components/Appbar';
+import axiosInstance from '../../services/axiosInterceptor';
 
-const ParentsList = ({navigation}) => {
-  const { parentsData, fetchParentses, pageNumber, loading } = useContext(ParentsContext);
+const SelectStudents = ({navigation, route}) => {
+    const { teacherId } = route.params; // Get teacher ID from navigatio
+  const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);
+
+  const AssignStudents = async () => {
+    try{
+        const token = await AsyncStorage.getItem('token');
+        const response = await axiosInstance.post('Teacher/AssignStudent', )
+    } catch (error) {
+        console.log(error);
+    }
+  }
 
   return (
     <View style={styles.container}>
-      <Header
-        title="Parent List"
-        onMenuPress={() => console.log('Menu Pressed')}
+      <Appbar
+        title="Select Students"
+        onMenuPress={() => navigation.goBack()}
         onNotifyPress={() => console.log('Notification Pressed')}
       />
-      <View style={styles.campus}>
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('addparents')}>
-            <Image source={icons.Parent} style={styles.icon} />
-            <Text style={styles.text}>Add</Text>
-        </TouchableOpacity>
-      </View>
+   
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.tableHeader}>
           <Text style={styles.headerText}>Name</Text>
-          <Text style={styles.headerText}>MasjidId</Text>
-          <Text style={styles.headerText}>Phone</Text>
+          <Text>{teacherId}</Text>
         </View>
 
         {loading ? (
           <Text style={styles.loadingText}>Loading...</Text>
         ) : (
           <FlatList
-            data={parentsData}
+            data={studentData}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.tableRow}>
-                <Text style={styles.rowText}>{item.email}</Text>
-                <Text style={styles.rowText}>{item.fatherName}</Text>
-                <Text style={styles.rowText}>{item.fatherCNIC}</Text>
+                <Text style={styles.rowText}>{item.userName}</Text>
               </View>
             )}
           />
@@ -49,7 +52,7 @@ const ParentsList = ({navigation}) => {
 
       <View style={styles.pagination}>
         <TouchableOpacity 
-          onPress={() => fetchParentses(pageNumber - 1)} 
+          onPress={() => fetchStudentes(pageNumber - 1)} 
           disabled={pageNumber === 1}
           style={[styles.pageButton, pageNumber === 1 && styles.disabledButton]}
         >
@@ -61,7 +64,7 @@ const ParentsList = ({navigation}) => {
         <Text style={styles.pageText}>Page {pageNumber}</Text>
 
         <TouchableOpacity 
-          onPress={() => fetchParentses(pageNumber + 1)}
+          onPress={() => fetchStudentes(pageNumber + 1)}
           style={styles.pageButton}
         >
          <Text style={styles.text}>
@@ -73,27 +76,13 @@ const ParentsList = ({navigation}) => {
   );
 };
 
-export default ParentsList;
+export default SelectStudents;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  card: {
-    backgroundColor: colors.white,
-    width: (width - 64) / 3,
-    height: (width - 64) / 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    elevation: 3,
-    marginBottom: 16,
-},
-campus:{
-    margin:12
-},
   scrollContainer: {
     padding: 16,
   },

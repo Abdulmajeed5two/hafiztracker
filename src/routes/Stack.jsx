@@ -35,6 +35,9 @@ import CampusScreen from '../screens/campus/CampusScreen';
 import AddCampus from '../screens/campus/AddCampus';
 import StudentList from '../screens/student/StudentList';
 import TeacherList from '../screens/teacher/TeacherList';
+import AssignedStudents from '../screens/teacher/AssignedStudents';
+import Selectteacher from '../screens/teacher/Selectteacher';
+import SelectStudents from '../screens/teacher/SelectStudents';
 
 const Stack = createNativeStackNavigator();
 
@@ -79,6 +82,9 @@ const StackNavigator = () => {
         <Stack.Screen name='addcampus' component={AddCampus}/>
         <Stack.Screen name='stdlist' component={StudentList}/>
         <Stack.Screen name='teachlist' component={TeacherList}/>
+        <Stack.Screen name='assign' component={AssignedStudents}/>
+        <Stack.Screen name='tselect' component={Selectteacher}/>
+        <Stack.Screen name='sselect' component={SelectStudents}/>
     </Stack.Navigator>
   )
 }

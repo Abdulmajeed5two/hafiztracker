@@ -40,6 +40,7 @@ const icons = {
   Madarsa: require('../assets/icons/school.png'),
   Next: require('../assets/icons/next.png'),
   Prev: require('../assets/icons/pre.png'),
+  Assign: require('../assets/icons/assign.png'),
 
   //images
   Student: require('../assets/img/std.jpg'),

@@ -1,47 +1,36 @@
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import React, { useContext } from 'react';
-import Header from '../../components/Header';
-import icons from '../../constant/Icons';
 import { FlatList } from 'react-native-gesture-handler';
-import { width } from '../../constant/Size';
-import { colors } from '../../constant/Colors';
-import { ParentsContext } from '../../context/ParentsContext';
+import { TeacherContext } from '../../context/TeacherContext';
+import Appbar from '../../components/Appbar';
 
-const ParentsList = ({navigation}) => {
-  const { parentsData, fetchParentses, pageNumber, loading } = useContext(ParentsContext);
+const Selectteacher = ({ navigation }) => {
+  const { teacherData, fetchTeacheres, pageNumber, loading } = useContext(TeacherContext);
+
+  const handleSelectTeacher = (teacher) => {
+    navigation.navigate('sselect', { teacherId: teacher.id }); // Pass teacher ID to AssignedStudents screen
+  };
 
   return (
     <View style={styles.container}>
-      <Header
-        title="Parent List"
-        onMenuPress={() => console.log('Menu Pressed')}
-        onNotifyPress={() => console.log('Notification Pressed')}
-      />
-      <View style={styles.campus}>
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('addparents')}>
-            <Image source={icons.Parent} style={styles.icon} />
-            <Text style={styles.text}>Add</Text>
-        </TouchableOpacity>
-      </View>
+      <Appbar title="Select Teacher" onMenuPress={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.tableHeader}>
           <Text style={styles.headerText}>Name</Text>
-          <Text style={styles.headerText}>MasjidId</Text>
-          <Text style={styles.headerText}>Phone</Text>
         </View>
 
         {loading ? (
           <Text style={styles.loadingText}>Loading...</Text>
         ) : (
           <FlatList
-            data={parentsData}
+            data={teacherData}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <View style={styles.tableRow}>
-                <Text style={styles.rowText}>{item.email}</Text>
-                <Text style={styles.rowText}>{item.fatherName}</Text>
-                <Text style={styles.rowText}>{item.fatherCNIC}</Text>
-              </View>
+              <TouchableOpacity onPress={() => handleSelectTeacher(item)}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.rowText}>{item.userName}</Text>
+                </View>
+              </TouchableOpacity>
             )}
           />
         )}
@@ -49,51 +38,33 @@ const ParentsList = ({navigation}) => {
 
       <View style={styles.pagination}>
         <TouchableOpacity 
-          onPress={() => fetchParentses(pageNumber - 1)} 
+          onPress={() => fetchTeacheres(pageNumber - 1)} 
           disabled={pageNumber === 1}
           style={[styles.pageButton, pageNumber === 1 && styles.disabledButton]}
         >
-         <Text style={styles.text}>
-         Prev
-         </Text>
+          <Text style={styles.text}>Prev</Text>
         </TouchableOpacity>
 
         <Text style={styles.pageText}>Page {pageNumber}</Text>
 
         <TouchableOpacity 
-          onPress={() => fetchParentses(pageNumber + 1)}
+          onPress={() => fetchTeacheres(pageNumber + 1)}
           style={styles.pageButton}
         >
-         <Text style={styles.text}>
-         Next
-         </Text>
+          <Text style={styles.text}>Next</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-export default ParentsList;
+export default Selectteacher;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  card: {
-    backgroundColor: colors.white,
-    width: (width - 64) / 3,
-    height: (width - 64) / 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderRadius: 8,
-    elevation: 3,
-    marginBottom: 16,
-},
-campus:{
-    margin:12
-},
   scrollContainer: {
     padding: 16,
   },
@@ -148,14 +119,10 @@ campus:{
     fontSize: 16,
     fontWeight: 'bold',
   },
-  text:{
+  text: {
     fontSize: 14,
     color: '#333',
-    fontWeight:'600'
-  },
-  icon:{
-    width:50,
-    height:50,
+    fontWeight: '600',
   },
   loadingText: {
     textAlign: 'center',

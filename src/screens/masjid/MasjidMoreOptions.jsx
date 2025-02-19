@@ -13,21 +13,6 @@ const sections = [
     route: 'lang'
   },
   {
-    icon: icons.Madarsa,
-    label: { en: 'Campus', other: 'کیمپس' },
-    route: 'campus'
-  },
-  {
-    icon: icons.Teacher,
-    label: { en: 'Teachers', other: 'والدین' },
-    route: 'parentslist'
-  },
-  {
-    icon: icons.Parent,
-    label: { en: 'Parents', other: 'والدین' },
-    route: 'parentslist'
-  },
-  {
     icon: icons.Quran,
     label: { en: 'Ayats', other: 'آیات' },
     route: 'ayat'
@@ -36,7 +21,12 @@ const sections = [
     icon: icons.Quotes,
     label: { en: 'Quotes', other: 'اقتباسات' },
     route: 'quote'
-  }
+  },
+  {
+    icon: icons.Assign,
+    label: { en: 'Assigned Students', other: 'تفویض شدہ طلباء' },
+    route: 'assign'
+  },
 ];
 
 const MasjidMoreOptions = () => {

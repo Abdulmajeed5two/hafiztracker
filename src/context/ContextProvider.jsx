@@ -4,6 +4,7 @@ import { CampusProvider } from './CampusContext';
 import { StudentProvider } from './StudentContext';
 import { TeacherProvider } from './TeacherContext';
 import { ParentsProvider } from './ParentsContext';
+import { MasjidProvider } from './MasjidContext';
 
 
 const ContextProvider = ({ children }) => {
@@ -13,7 +14,9 @@ const ContextProvider = ({ children }) => {
             <StudentProvider>
             <TeacherProvider>
               <ParentsProvider>
+                <MasjidProvider>
             {children}
+                </MasjidProvider>
               </ParentsProvider>
             </TeacherProvider>
             </StudentProvider>

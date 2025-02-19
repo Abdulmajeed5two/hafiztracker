@@ -56,12 +56,13 @@ const MasjidAuth = ({ navigation }) => {
             password: password,
             deviceId: deviceId,
         });
-        console.log('Login Response:', response.data.result.userName);
+        console.log('Login Response:', response.data.result.id);
 
         const { result } = response.data;
         const token = result?.token;    
         const status = result?.status;
         const username = result?.userName;
+        const Id = result?.id;
 
         if (!token) {
             throw new Error('Token is missing in the response');
@@ -79,6 +80,7 @@ const MasjidAuth = ({ navigation }) => {
         if (token) {
             await AsyncStorage.setItem('token', token);
             await AsyncStorage.setItem('userName', username)
+            await AsyncStorage.setItem('id', Id.toString());
             console.log('Token:', token);
             Toast.show({
                 type: 'success',
@@ -116,15 +118,12 @@ const MasjidAuth = ({ navigation }) => {
       });
 
       console.log('Registration Response:', response.data);
-
-      // Show success toast
       Toast.show({
         type: 'success',
         text1: 'Registration Successful',
         text2: 'You have successfully registered!',
       });
 
-      // Navigate back to the login screen
       navigation.navigate('MasjidAuth');
     } catch (error) {
       console.error('Registration Error:', error);

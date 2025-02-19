@@ -5,6 +5,7 @@ import { colors } from '../../constant/Colors';
 import Button from '../../constant/Buttons';
 import icons from '../../constant/Icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axiosInstance from '../../services/axiosInterceptor';
 
 const AddStudentsScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -34,7 +35,13 @@ const AddStudentsScreen = ({ navigation }) => {
 
     try {
       const token = await AsyncStorage.getItem('token')
-      const response = await axiosInstance.post('/Student/RegisterStudent', formData);
+      const response = await axiosInstance.post('/Student/RegisterStudent', formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        }
+      );
       console.log('Success:', response.data);
 
       // Show toast success message

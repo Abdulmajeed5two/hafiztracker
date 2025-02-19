@@ -35,8 +35,9 @@ const sections = [
   {
     icon: icons.Parent,
     label: { en: 'Parents', other: 'والدین' },
-    route: 'addparents',
+    route: 'parentslist',
   },
+  
   
 ];
 
