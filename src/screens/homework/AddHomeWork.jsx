@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const AddHomeWorkForm = () => {
+const AddHomeWork = () => {
   return (
     <View>
-      <Text>AddHomeWorkScreen</Text>
+      <Text>AddHomeWork</Text>
     </View>
   )
 }
 
-export default AddHomeWorkForm
+export default AddHomeWork
 
 const styles = StyleSheet.create({})

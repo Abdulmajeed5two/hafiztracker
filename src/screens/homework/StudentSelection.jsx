@@ -1,31 +1,28 @@
 import { Image, StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
-import React, { useState, useEffect, useContext } from 'react';
-import Inputs from '../../constant/Inputs';
+import React, { useState, useEffect } from 'react';
 import { colors } from '../../constant/Colors';
 import Button from '../../constant/Buttons';
 import icons from '../../constant/Icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../../services/axiosInterceptor';
 import Toast from 'react-native-toast-message';
-import { ParentsContext } from '../../context/ParentsContext';
+import CustomSelectList from '../../components/SelectList';
 
-const AddParentsScreen = ({ navigation }) => {
+const StudentSelection = ({ navigation }) => {
   
   const [formData, setFormData] = useState({
-    userName: '',
-    email: '',
-    fatherName: '',
-    motherName: '',
-    fatherCNIC: '',
-    motherCNIC: '',
-    contact: '',
-    address: '',
-    description: '',
-    password: '',
-    confirmPassword: '',
+    suratStartName: '',
+    suratEndName: '',
+    suratStartNumber: '',
+    suratEndNumber: '',
+    startAyatNo: '',
+    endAyatNo: '',
+    endDate: '',
+    studentId: '',
+    type: '',
     masjidId: '',
-    
   });
+
 
   useEffect(() => {
     const fetchMasjidId = async () => {
@@ -37,8 +34,7 @@ const AddParentsScreen = ({ navigation }) => {
     fetchMasjidId();
   }, []);
 
-
-  const RegisterStudents = async () => {
+  const AssignHomeWork = async () => {
     if (!formData.userName || !formData.fatherName || !formData.email || !formData.password) {
       Alert.alert('Error', 'Please fill all required fields.');
       return;
@@ -88,30 +84,37 @@ const AddParentsScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.iconContainer}>
-          <Image source={icons.Parent} style={styles.logo} />
+          <Image source={icons.MasjidIcon} style={styles.logo} />
         </View>
-        <Text style={styles.title}>Parents Registration</Text>
+        <Text style={styles.title}>HomeWork</Text>
       </View>
 
       <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.inputContainer}>
-          <Inputs placeholder="User Name" value={formData.userName} onChangeText={(text) => handleInputChange('userName', text)} />
-          <Inputs placeholder="Email" value={formData.email} onChangeText={(text) => handleInputChange('email', text)} />
-          <Inputs placeholder="Father Name" value={formData.fatherName} onChangeText={(text) => handleInputChange('fatherName', text)} />
-          <Inputs placeholder="Mother Name" value={formData.motherName} onChangeText={(text) => handleInputChange('motherName', text)} />
-          <Inputs placeholder="Father CNIC" value={formData.fatherCNIC} onChangeText={(text) => handleInputChange('fatherCNIC', text)} />
-          <Inputs placeholder="Mother CNIC" value={formData.motherCNIC} onChangeText={(text) => handleInputChange('motherCNIC', text)} />
-          <Inputs placeholder="Contact" value={formData.contact} onChangeText={(text) => handleInputChange('contact', text)} />
-          <Inputs placeholder="Address" value={formData.address} onChangeText={(text) => handleInputChange('address', text)} />
-          <Inputs placeholder="Description" value={formData.description} onChangeText={(text) => handleInputChange('description', text)} />
-          <Inputs placeholder="Password" secureTextEntry value={formData.password} onChangeText={(text) => handleInputChange('password', text)} />
-          <Inputs placeholder="Confirm Password" secureTextEntry value={formData.confirmPassword} onChangeText={(text) => handleInputChange('confirmPassword', text)} />
+    
+    <CustomSelectList
+  data={[
+    { key: '1', value: 'Khan' },
+    { key: '2', value: 'hameed' },
+    { key: '3', value: 'hakim' }
+  ]}
+  selectedValue="Select Student"
+  onSelect={(val) => console.log("Selected:", val)}
+/>
+<CustomSelectList
+  data={[
+    { key: '1', value: 'Khan' },
+    { key: '2', value: 'hameed' },
+    { key: '3', value: 'hakim' },
+  ]}
+  selectedValue="Select Student"
+  onSelect={(val) => console.log("Selected:", val)}
+/>
         </View>
-
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <Button title="Register Now" onPress={RegisterStudents} />
+        <Button title="Assign Home Work" onPress={AssignHomeWork} />
       </View>
 
       <Toast />
@@ -119,7 +122,7 @@ const AddParentsScreen = ({ navigation }) => {
   );
 };
 
-export default AddParentsScreen;
+export default StudentSelection;
 
 const styles = StyleSheet.create({
   container: {

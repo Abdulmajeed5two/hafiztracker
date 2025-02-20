@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import icons from '../../constant/Icons';
 import { FlatList } from 'react-native-gesture-handler';
 import { width } from '../../constant/Size';
@@ -7,19 +7,63 @@ import { colors } from '../../constant/Colors';
 import { StudentContext } from '../../context/StudentContext';
 import Appbar from '../../components/Appbar';
 import axiosInstance from '../../services/axiosInterceptor';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 const SelectStudents = ({navigation, route}) => {
     const { teacherId } = route.params; // Get teacher ID from navigatio
   const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);
+  const [selectedStudents, setSelectedStudents] = useState([]);
+
+  const toggleStudentSelection = (studentId) => {
+    setSelectedStudents((prevSelected) =>
+      prevSelected.includes(studentId)
+        ? prevSelected.filter((id) => id !== studentId)
+        : [...prevSelected, studentId] 
+    );
+  };
 
   const AssignStudents = async () => {
-    try{
-        const token = await AsyncStorage.getItem('token');
-        const response = await axiosInstance.post('Teacher/AssignStudent', )
-    } catch (error) {
-        console.log(error);
+    if (selectedStudents.length === 0) {
+      alert('Please select at least one student.');
+      return;
     }
-  }
+  
+    try {
+      const masjidId = await AsyncStorage.getItem('id');
+      const token = await AsyncStorage.getItem('token');
+  
+      const requestBody = selectedStudents.map((studentId) => ({
+        studentId: studentId,
+        teacherId: teacherId,
+        masjidId: masjidId
+      }));
+  
+      const response = await axiosInstance.post('Teacher/AssignStudent', requestBody, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      Toast.show({
+        type: 'success',
+        text1: 'Students Assigned',
+        text2: 'Selected students have been assigned successfully!',
+      });
+      navigation.goBack();
+      setSelectedStudents([]);
+    } catch (error) {
+      console.error('API Error:', error.response?.data || error.message);
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to Assign Students',
+        text2: 'An error occurred while assigning students. Please try again.',
+      });
+      
+    }
+  };
+  
+  
 
   return (
     <View style={styles.container}>
@@ -39,16 +83,24 @@ const SelectStudents = ({navigation, route}) => {
           <Text style={styles.loadingText}>Loading...</Text>
         ) : (
           <FlatList
-            data={studentData}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.tableRow}>
-                <Text style={styles.rowText}>{item.userName}</Text>
-              </View>
-            )}
-          />
+  data={studentData}
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item }) => (
+    <TouchableOpacity onPress={() => toggleStudentSelection(item.id)}>
+      <View style={[styles.tableRow, selectedStudents.includes(item.id) && styles.selectedRow]}>
+        <Text style={styles.rowText}>{item.userName}</Text>
+      </View>
+    </TouchableOpacity>
+  )}
+/>
+
         )}
       </ScrollView>
+
+      <TouchableOpacity onPress={AssignStudents} style={styles.assignButton}>
+  <Text style={styles.assignText}>Assign Selected</Text>
+</TouchableOpacity>
+
 
       <View style={styles.pagination}>
         <TouchableOpacity 
@@ -72,6 +124,7 @@ const SelectStudents = ({navigation, route}) => {
          </Text>
         </TouchableOpacity>
       </View>
+      <Toast />
     </View>
   );
 };
@@ -86,6 +139,21 @@ const styles = StyleSheet.create({
   scrollContainer: {
     padding: 16,
   },
+  selectedRow: {
+    backgroundColor: '#d1e7dd', // Light green highlight for selected students
+  },
+  assignButton: {
+    backgroundColor: '#4CAF50',
+    padding: 12,
+    margin: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  assignText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },  
   tableHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

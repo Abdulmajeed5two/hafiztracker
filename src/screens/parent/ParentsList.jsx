@@ -38,7 +38,7 @@ const ParentsList = ({navigation}) => {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.tableRow}>
-                <Text style={styles.rowText}>{item.email}</Text>
+                <Text style={styles.rowText}>{item.id}</Text>
                 <Text style={styles.rowText}>{item.fatherName}</Text>
                 <Text style={styles.rowText}>{item.fatherCNIC}</Text>
               </View>

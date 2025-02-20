@@ -7,6 +7,7 @@ import SearchScreen from '../screens/SearchScreen';
 import StudentList from '../screens/student/StudentList';
 import TeacherScreen from '../screens/teacher/TeacherScreen';
 import MasjidMoreOptions from '../screens/masjid/MasjidMoreOptions';
+import TeacherMoreOptions from '../screens/teacher/TeacherMoreOptions';
 
 const Tab = createBottomTabNavigator();
 
@@ -63,13 +64,13 @@ const TeacherTabs = () => {
         }}
       />
       <Tab.Screen
-        name="StdList"
-        component={StudentList}
+        name="More"
+        component={TeacherMoreOptions}
         options={{
           tabBarIcon: ({ focused }) => (
             <View>
               <Image
-                source={icons.StdList}
+                source={icons.Apps}
                 style={{
                   width: 30,
                   height: 30,

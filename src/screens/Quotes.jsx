@@ -74,7 +74,7 @@ const Quotes = () => {
         onMenuPress={() => console.log('Menu Pressed')}
         onNotifyPress={() => console.log('Notification Pressed')}
       />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
         {quotesData.map((quote) => (
           <View key={quote.id} style={styles.card}>
             <Text style={styles.arabicText}>{quote.arabic}</Text>
