@@ -21,7 +21,6 @@ import CalenderScreen from '../screens/CalenderScreen';
 import MasjidAuth from '../Auth/MasjidAuth';
 import MasjidTabs from './MasjidTabs';
 import StudentTabs from './StudentTabs';
-import AddStudentsScreen from '../screens/student/AddStudentsScreen';
 import AddTeacherScreen from '../screens/teacher/AddTeacherScreen';
 import Drawer from './Drawer';
 import ChangeLang from '../components/ChangeLang';
@@ -40,6 +39,9 @@ import Selectteacher from '../screens/teacher/Selectteacher';
 import SelectStudents from '../screens/teacher/SelectStudents';
 import TeacherStudents from '../screens/teacher/TeacherStudents';
 import AddStudentForm from '../screens/student/AddStudentForm';
+import Surat from '../screens/surat/Surat';
+import AddHomeWork from '../screens/homework/AddHomeWork';
+import StudentSelection from '../screens/homework/StudentSelection';
 
 const Stack = createNativeStackNavigator();
 
@@ -71,7 +73,8 @@ const StackNavigator = () => {
         <Stack.Screen name='parent' component={ParentScreen}/>
         <Stack.Screen name='namesofallah' component={Nameof99Allah}/>
         <Stack.Screen name='homework' component={HomeWork}/>
-        <Stack.Screen name='homeworkform' component={AddHomeWorkForm}/>
+        <Stack.Screen name='stdselection' component={StudentSelection}/>
+        <Stack.Screen name='addhomework' component={AddHomeWork}/>
         <Stack.Screen name='calender' component={CalenderScreen}/>
         <Stack.Screen name='addstd' component={AddStudentForm}/>
         <Stack.Screen name='addteacher' component={AddTeacherScreen}/>
@@ -88,6 +91,7 @@ const StackNavigator = () => {
         <Stack.Screen name='tselect' component={Selectteacher}/>
         <Stack.Screen name='sselect' component={SelectStudents}/>
         <Stack.Screen name='tstd' component={TeacherStudents}/>
+        <Stack.Screen name='surat' component={Surat}/>
     </Stack.Navigator>
   )
 }

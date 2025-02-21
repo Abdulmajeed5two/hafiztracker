@@ -5,22 +5,25 @@ import { StudentProvider } from './StudentContext';
 import { TeacherProvider } from './TeacherContext';
 import { ParentsProvider } from './ParentsContext';
 import { MasjidProvider } from './MasjidContext';
+import { SuratProvider } from './SuratContext';
 
 
 const ContextProvider = ({ children }) => {
   return (
     <LanguageProvider>
-          <CampusProvider>
-            <StudentProvider>
-            <TeacherProvider>
-              <ParentsProvider>
-                <MasjidProvider>
-            {children}
-                </MasjidProvider>
-              </ParentsProvider>
-            </TeacherProvider>
-            </StudentProvider>
-          </CampusProvider>
+      <CampusProvider>
+        <StudentProvider>
+          <TeacherProvider>
+            <ParentsProvider>
+              <MasjidProvider>
+                <SuratProvider>
+                  {children}
+                </SuratProvider>
+              </MasjidProvider>
+            </ParentsProvider>
+          </TeacherProvider>
+        </StudentProvider>
+      </CampusProvider>
     </LanguageProvider>
 
   );

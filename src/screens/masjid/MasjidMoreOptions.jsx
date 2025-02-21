@@ -14,14 +14,19 @@ const sections = [
   },
   {
     icon: icons.Quran,
+    label: { en: 'Surat', other: 'سورت' },
+    route: 'surat'
+  },
+  {
+    icon: icons.Quran,
     label: { en: 'Ayats', other: 'آیات' },
     route: 'ayat'
   },
-  {
-    icon: icons.Quotes,
-    label: { en: 'Quotes', other: 'اقتباسات' },
-    route: 'quote'
-  },
+  // {
+  //   icon: icons.Quotes,
+  //   label: { en: 'Quotes', other: 'اقتباسات' },
+  //   route: 'quote'
+  // },
   {
     icon: icons.Assign,
     label: { en: 'Assigned Students', other: 'تفویض شدہ طلباء' },

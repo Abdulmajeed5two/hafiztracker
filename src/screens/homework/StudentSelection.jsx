@@ -1,123 +1,59 @@
-import { Image, StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react';
+import Appbar from '../../components/Appbar';
+import { StudentContext } from '../../context/StudentContext';
 import { colors } from '../../constant/Colors';
-import Button from '../../constant/Buttons';
-import icons from '../../constant/Icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axiosInstance from '../../services/axiosInterceptor';
-import Toast from 'react-native-toast-message';
-import CustomSelectList from '../../components/SelectList';
 
 const StudentSelection = ({ navigation }) => {
-  
-  const [formData, setFormData] = useState({
-    suratStartName: '',
-    suratEndName: '',
-    suratStartNumber: '',
-    suratEndNumber: '',
-    startAyatNo: '',
-    endAyatNo: '',
-    endDate: '',
-    studentId: '',
-    type: '',
-    masjidId: '',
-  });
+  const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);
 
-
-  useEffect(() => {
-    const fetchMasjidId = async () => {
-      const masjidId = await AsyncStorage.getItem('id');
-      if (masjidId) {
-        setFormData((prev) => ({ ...prev, masjidId }));
-      }
-    };
-    fetchMasjidId();
-  }, []);
-
-  const AssignHomeWork = async () => {
-    if (!formData.userName || !formData.fatherName || !formData.email || !formData.password) {
-      Alert.alert('Error', 'Please fill all required fields.');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Password and Confirm Password do not match.',
-      });
-      return;
-    }
-
-    try {
-      const token = await AsyncStorage.getItem('token');
-      const response = await axiosInstance.post('/Parent/RegisterParent', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
-      console.log('Success:', response.data);
-
-      Toast.show({
-        type: 'success',
-        text1: 'Registration Successful',
-        text2: 'Parent has been registered successfully!',
-      });
-
-      navigation.goBack();
-    } catch (error) {
-      console.error('API Error:', error.response?.data || error.message);
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Failed to register parent. Please try again.',
-      })
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const onStudentPress = (student) => {
+    navigation.navigate("addhomework", { student }); 
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          <Image source={icons.MasjidIcon} style={styles.logo} />
-        </View>
-        <Text style={styles.title}>HomeWork</Text>
+      <Appbar
+        title="Select Student"
+        onMenuPress={() => console.log('Menu Pressed')}
+        onNotifyPress={() => console.log('Notification Pressed')}
+      />
+
+      <FlatList
+        data={studentData}
+        keyExtractor={(item) => item.id.toString()}
+        ListHeaderComponent={
+          <View style={styles.tableHeaderB}>
+            <Text style={styles.headerText}>Names</Text>
+          </View>
+        }
+        ListEmptyComponent={<Text style={styles.loadingText}>{loading ? 'Loading...' : 'No Students Found'}</Text>}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => onStudentPress(item)} style={styles.tableRow}>
+            <Text style={styles.rowText}>{item.userName}</Text>
+          </TouchableOpacity>
+        )}
+      />
+
+      <View style={styles.pagination}>
+        <TouchableOpacity
+          onPress={() => fetchStudentes(pageNumber - 1)}
+          disabled={pageNumber === 1}
+          style={[styles.pageButton, pageNumber === 1 && styles.disabledButton]}
+        >
+          <Text style={styles.text}>Prev</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.pageText}>Page {pageNumber}</Text>
+
+        <TouchableOpacity
+          onPress={() => fetchStudentes(pageNumber + 1)}
+          style={styles.pageButton}
+        >
+          <Text style={styles.text}>Next</Text>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.inputContainer}>
-    
-    <CustomSelectList
-  data={[
-    { key: '1', value: 'Khan' },
-    { key: '2', value: 'hameed' },
-    { key: '3', value: 'hakim' }
-  ]}
-  selectedValue="Select Student"
-  onSelect={(val) => console.log("Selected:", val)}
-/>
-<CustomSelectList
-  data={[
-    { key: '1', value: 'Khan' },
-    { key: '2', value: 'hameed' },
-    { key: '3', value: 'hakim' },
-  ]}
-  selectedValue="Select Student"
-  onSelect={(val) => console.log("Selected:", val)}
-/>
-        </View>
-      </ScrollView>
-
-      <View style={styles.buttonContainer}>
-        <Button title="Assign Home Work" onPress={AssignHomeWork} />
-      </View>
-
-      <Toast />
     </View>
   );
 };
@@ -127,54 +63,67 @@ export default StudentSelection;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.PrimaryGreen,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingHorizontal: 20,
+    backgroundColor: '#f5f5f5',
   },
-  header: {
-    margin: 8,
+  tableHeaderB: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
-  iconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-    overflow: 'hidden',
-  },
-  logo: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.white,
-    textAlign: 'center',
-    flexShrink: 1,
-    marginTop: 10,
-  },
-  formContainer: {
-    width: '100%',
+  headerText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
     flex: 1,
+    textAlign: 'center',
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 20,
+  tableRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
   },
-  buttonContainer: {
-    position: 'absolute',
-    bottom: 20,
-    width: '100%',
-    paddingHorizontal: 20,
+  rowText: {
+    fontSize: 14,
+    color: '#333',
+    flex: 1,
+    textAlign: 'center',
+  },
+  pagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
+  pageButton: {
+    padding: 10,
+    marginHorizontal: 10,
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  pageText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  text: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '600',
+  },
+  loadingText: {
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 16,
   },
 });

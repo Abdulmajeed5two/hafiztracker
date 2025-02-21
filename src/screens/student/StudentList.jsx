@@ -1,14 +1,21 @@
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
-import React, { useContext } from 'react';
+import { FlatList, StyleSheet, Text, View, TouchableOpacity, Image, Modal } from 'react-native';
+import React, { useContext, useState } from 'react';
 import Header from '../../components/Header';
 import icons from '../../constant/Icons';
-import { FlatList } from 'react-native-gesture-handler';
 import { width } from '../../constant/Size';
 import { colors } from '../../constant/Colors';
 import { StudentContext } from '../../context/StudentContext';
 
-const StudentList = ({navigation}) => {
+const StudentList = ({ navigation }) => {
   const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Open Modal and Set Selected Student
+  const openModal = (student) => {
+    setSelectedStudent(student);
+    setModalVisible(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -17,58 +24,97 @@ const StudentList = ({navigation}) => {
         onMenuPress={() => console.log('Menu Pressed')}
         onNotifyPress={() => console.log('Notification Pressed')}
       />
+
       <View style={styles.campus}>
         <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('addstd')}>
-            <Image source={icons.StdList} style={styles.icon} />
-            <Text style={styles.text}>Add</Text>
+          <Image source={icons.StdList} style={styles.icon} />
+          <Text style={styles.text}>Add</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.tableHeader}>
-          <Text style={styles.headerText}>Name</Text>
-          <Text style={styles.headerText}>MasjidId</Text>
-          <Text style={styles.headerText}>Phone</Text>
-        </View>
 
-        {loading ? (
-          <Text style={styles.loadingText}>Loading...</Text>
-        ) : (
-          <FlatList
-            data={studentData}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.tableRow}>
-                <Text style={styles.rowText}>{item.userName}</Text>
-                <Text style={styles.rowText}>{item.masjidId}</Text>
-                <Text style={styles.rowText}>{item.phone}</Text>
-              </View>
-            )}
-          />
+      <FlatList
+        data={studentData}
+        keyExtractor={(item) => item.id.toString()}
+        ListHeaderComponent={
+          <View style={styles.tableHeaderB}>
+            <Text style={styles.headerText}>Name</Text>
+            <Text style={styles.headerText}>Phone</Text>
+          </View>
+        }
+        ListEmptyComponent={<Text style={styles.loadingText}>{loading ? 'Loading...' : 'No Students Found'}</Text>}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => openModal(item)} style={styles.tableRow}>
+            <Text style={styles.rowText}>{item.userName}</Text>
+            <Text style={styles.rowText}>{item.phone}</Text>
+          </TouchableOpacity>
         )}
-      </ScrollView>
+      />
 
       <View style={styles.pagination}>
-        <TouchableOpacity 
-          onPress={() => fetchStudentes(pageNumber - 1)} 
+        <TouchableOpacity
+          onPress={() => fetchStudentes(pageNumber - 1)}
           disabled={pageNumber === 1}
           style={[styles.pageButton, pageNumber === 1 && styles.disabledButton]}
         >
-         <Text style={styles.text}>
-         Prev
-         </Text>
+          <Text style={styles.text}>Prev</Text>
         </TouchableOpacity>
 
         <Text style={styles.pageText}>Page {pageNumber}</Text>
 
-        <TouchableOpacity 
-          onPress={() => fetchStudentes(pageNumber + 1)}
-          style={styles.pageButton}
-        >
-         <Text style={styles.text}>
-         Next
-         </Text>
+        <TouchableOpacity onPress={() => fetchStudentes(pageNumber + 1)} style={styles.pageButton}>
+          <Text style={styles.text}>Next</Text>
         </TouchableOpacity>
       </View>
+
+      {/* MODAL FOR STUDENT DETAILS */}
+      <Modal
+  animationType="slide"
+  transparent={true}
+  visible={modalVisible}
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Student Details</Text>
+      {selectedStudent && (
+        <View style={styles.tableContainer}>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Name:</Text>
+            <Text style={styles.tableData}>{selectedStudent.userName}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Phone:</Text>
+            <Text style={styles.tableData}>{selectedStudent.phone}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Whatsapp:</Text>
+            <Text style={styles.tableData}>{selectedStudent.whatsapp}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Emergency Contact:</Text>
+            <Text style={styles.tableData}>{selectedStudent.emergencyContact}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Email:</Text>
+            <Text style={styles.tableData}>{selectedStudent.email}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Area:</Text>
+            <Text style={styles.tableData}>{selectedStudent.area}</Text>
+          </View>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Address:</Text>
+            <Text style={styles.tableData}>{selectedStudent.address}</Text>
+          </View>
+        </View>
+      )}
+      <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+        <Text style={styles.closeButtonText}>Close</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
     </View>
   );
 };
@@ -90,14 +136,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     elevation: 3,
     marginBottom: 16,
-},
-campus:{
-    margin:12
-},
-  scrollContainer: {
-    padding: 16,
   },
-  tableHeader: {
+  campus: {
+    margin: 12,
+  },
+  tableHeaderB: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#4CAF50',
@@ -148,18 +191,65 @@ campus:{
     fontSize: 16,
     fontWeight: 'bold',
   },
-  text:{
+  text: {
     fontSize: 14,
     color: '#333',
-    fontWeight:'600'
+    fontWeight: '600',
   },
-  icon:{
-    width:50,
-    height:50,
+  icon: {
+    width: 50,
+    height: 50,
   },
   loadingText: {
     textAlign: 'center',
     marginTop: 10,
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'flex-start',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  tableContainer: {
+    width: '100%',
+    marginTop: 10,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    marginVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    paddingVertical: 5,
+  },
+  tableHeader: {
+    fontWeight: 'bold',
+    width: '40%', // Adjust as needed
+  },
+  tableData: {
+    width: '60%', // Adjust as needed
+  },
+  closeButton: {
+    marginTop: 15,
+    backgroundColor: colors.red,
+    padding: 10,
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });

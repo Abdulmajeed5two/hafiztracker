@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
+import { Image, StyleSheet, Text, View, ScrollView, Alert, KeyboardAvoidingView } from 'react-native';
 import React, { useState, useEffect, useContext } from 'react';
 import Inputs from '../../constant/Inputs';
 import { colors } from '../../constant/Colors';
@@ -92,7 +92,7 @@ const AddParentsScreen = ({ navigation }) => {
         </View>
         <Text style={styles.title}>Parents Registration</Text>
       </View>
-
+  <KeyboardAvoidingView style={{ flex: 1, width: '100%' }} behavior='padding'>
       <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.inputContainer}>
           <Inputs placeholder="User Name" value={formData.userName} onChangeText={(text) => handleInputChange('userName', text)} />
@@ -107,8 +107,8 @@ const AddParentsScreen = ({ navigation }) => {
           <Inputs placeholder="Password" secureTextEntry value={formData.password} onChangeText={(text) => handleInputChange('password', text)} />
           <Inputs placeholder="Confirm Password" secureTextEntry value={formData.confirmPassword} onChangeText={(text) => handleInputChange('confirmPassword', text)} />
         </View>
-
       </ScrollView>
+  </KeyboardAvoidingView>
 
       <View style={styles.buttonContainer}>
         <Button title="Register Now" onPress={RegisterStudents} />

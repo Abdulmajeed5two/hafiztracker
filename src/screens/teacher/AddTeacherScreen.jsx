@@ -8,6 +8,7 @@ import CustomDropdown from '../../components/CustomDropdown';
 import axiosInstance from '../../services/axiosInterceptor';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SelectAttachment from 'react-native-select-attachment';
 
 const AddTeacherScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -25,6 +26,8 @@ const AddTeacherScreen = ({ navigation }) => {
     refernceName: '',
     referencePhone: '',
     masjidId: '36', // Default Masjid ID
+    ProfileImage: '',
+    Attachment: '',
   });
 
   const genderOptions = [
@@ -70,6 +73,32 @@ const AddTeacherScreen = ({ navigation }) => {
       Alert.alert('Error', 'Failed to register teacher.');
     }
   };
+
+  var options = {
+    maxFileSize: 10,
+    fileTypes: ['png', 'jpg', 'pdf'],
+    disableCameraPhotos: false,
+    disableCameraVideos: false,
+    disablePhotos: false,
+    disableVideos: false,
+    disableFiles: false,
+    cameraLabel: 'Camera',
+    albumLabel: 'Album',
+    filesLabel: 'Files',
+    enableImageScaling : true,
+    imageScale : 0.90,
+    maxImageWidth : 950
+};
+
+SelectAttachment.showPicker(options, (res) => {
+  if(res.error){
+      console.error(res.error);
+  } else {
+      console.error(res.fileName);
+      console.error(res.fileType); 
+      console.error(res.base64);
+  }
+});
 
   return (
     <View style={styles.container}>

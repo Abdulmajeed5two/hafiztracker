@@ -1,10 +1,9 @@
 import React, { useRef, forwardRef, useImperativeHandle } from 'react';
-import { StyleSheet, Text, View, Animated, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { StyleSheet, Text, View, Animated, TouchableOpacity, Dimensions } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import icons from '../constant/Icons';
-import { colors } from '../constant/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { colors } from '../constant/Colors';
 
 const { width } = Dimensions.get('window');
 const DRAWER_WIDTH = width * 0.6;
@@ -20,11 +19,16 @@ const Drawer = forwardRef((_, ref) => {
 
   const onHandlerStateChange = (event) => {
     if (event.nativeEvent.oldState === State.ACTIVE) {
-      const { translationX } = event.nativeEvent;
-      if (translationX > DRAWER_WIDTH / 2) {
+      const { translationX, velocityX } = event.nativeEvent;
+      if (translationX > DRAWER_WIDTH / 4 || velocityX > 500) {
         openDrawer();
-      } else {
+      } else if (translationX < -DRAWER_WIDTH / 4 || velocityX < -500) {
         closeDrawer();
+      } else {
+        Animated.spring(translateX, {
+          toValue: translateX > -DRAWER_WIDTH / 2 ? 0 : -DRAWER_WIDTH,
+          useNativeDriver: true,
+        }).start();
       }
     }
   };
@@ -48,41 +52,37 @@ const Drawer = forwardRef((_, ref) => {
     closeDrawer,
   }));
 
-const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
-        await AsyncStorage.removeItem('token');
-        console.log('User logged out successfully.');
-        navigation.navigate('role'); 
+      await AsyncStorage.removeItem('token');
+      console.log('User logged out successfully.');
+      navigation.navigate('role');
     } catch (error) {
-        console.error('Logout Error:', error);
+      console.error('Logout Error:', error);
     }
-};
+  };
 
   return (
-    <Animated.View
-      style={[
-        styles.drawer,
-        {
-          transform: [{ translateX }],
-        },
-      ]}
+    <PanGestureHandler
+      onGestureEvent={onGestureEvent}
+      onHandlerStateChange={onHandlerStateChange}
     >
-      <View style={styles.drawerContent}>
-        <Text style={styles.header}>Hafiz Menu</Text>
-        
-        <View style={styles.btns}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Logout</Text>
-            <Image source={icons.Logout} style={styles.icon} />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={closeDrawer} style={styles.logoutButton}>
-            <Text style={styles.logoutText}>Close</Text>
-            <Image source={icons.Cross} style={styles.icon} />
-          </TouchableOpacity>
+      <Animated.View
+        style={[styles.drawer, { transform: [{ translateX }] }]}
+      >
+        <View style={styles.drawerContent}>
+          <Text style={styles.header}>Hafiz Menu</Text>
+          <View style={styles.btns}>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={closeDrawer} style={styles.logoutButton}>
+              <Text style={styles.logoutText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </PanGestureHandler>
   );
 });
 
@@ -96,16 +96,16 @@ const styles = StyleSheet.create({
     width: DRAWER_WIDTH,
     height: '100%',
     backgroundColor: colors.white,
-    zIndex: 10, // Ensures it's above the main screen content
-    elevation: 10, // Android-specific shadow for overlay effect
-    shadowColor: '#000', 
+    zIndex: 10,
+    elevation: 10,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
   },
   drawerContent: {
     flex: 1,
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     padding: 20,
   },
   header: {
@@ -113,29 +113,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  btns: {
-    marginBottom: 20,
-  },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
+    backgroundColor: colors.PrimaryGreen,
+    padding: 10,
+    borderRadius: 5,
   },
   logoutText: {
     fontSize: 16,
-    marginRight: 10,
-  },
-  icon: {
-    width: 20,
-    height: 20,
-  },
-  closeButton: {
-    padding: 10,
-    backgroundColor: colors.PrimaryGreen,
-    alignItems: 'center',
-  },
-  closeButtonText: {
     color: colors.white,
-    fontSize: 16,
+    textAlign: 'center',
   },
 });

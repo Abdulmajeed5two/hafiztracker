@@ -69,6 +69,7 @@ const TeacherAuth = ({ navigation }) => {
       const token = result?.token;
       const status = result?.status;
       const Id = result?.id
+      const masjidId = result?.masjidId
 
       if (!token) {
         throw new Error('Token is missing in the response');
@@ -88,6 +89,7 @@ const TeacherAuth = ({ navigation }) => {
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('userName', result?.userName || '');
       await AsyncStorage.setItem('id', Id.toString());
+      await AsyncStorage.setItem('masjidId', masjidId.toString());
       Toast.show({
         type: 'success',
         text1: 'Login Successful',

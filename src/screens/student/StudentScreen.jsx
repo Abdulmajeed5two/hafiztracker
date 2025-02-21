@@ -1,8 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Hero from '../../components/Hero'
 import icons from '../../constant/Icons'
 import ContainerSection from '../../components/ContainerSection'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Drawer from '../../routes/Drawer'
 
 
 const sections = [
@@ -39,17 +41,43 @@ const sections = [
 ];
 
 const StudentScreen = ({navigation}) => {
+  const [userName, setUserName] = useState('');
+  const drawerRef = useRef();
+
+  const getUsernameFromStorage = async () => {
+    try {
+      const storedUsername = await AsyncStorage.getItem('userName');
+      if (storedUsername !== null) {
+        setUserName(storedUsername);
+      } else {
+        console.log('No username stored');
+      }
+    } catch (error) {
+      console.error('Error retrieving username:', error);
+    }
+  };
+
+  useEffect(() => {
+    getUsernameFromStorage();
+  }, []);
+
+  const handleMenuPress = () => {
+    if (drawerRef.current) {
+      drawerRef.current.openDrawer();
+    }
+  };
   return (
     <View style={styles.container}>
+        <Drawer ref={drawerRef} />
+
       <View style={styles.header}>
       <Hero
         menuIcon={icons.Menu}
         title="Home"
         shareIcon={icons.Share}
         userIcon={icons.Man}
-        userName="Suleman Khan"
-        userLocation="Karachi, Pakistan"
-        onMenuPress={() => navigation.navigate('drawer')}
+        userName={userName}
+        onMenuPress={handleMenuPress}
       />
       </View>
       <View style={styles.containerSection}>
@@ -64,6 +92,10 @@ export default StudentScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  }
+  },
+  content: {
+    flex: 1,
+    zIndex: 1, // Main content stays below the drawer
+  },
 
 })
