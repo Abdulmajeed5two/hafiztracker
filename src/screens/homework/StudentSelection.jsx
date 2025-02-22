@@ -1,14 +1,21 @@
-import { FlatList, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import React, { useContext } from 'react';
+import { FlatList, StyleSheet, Text, View, TouchableOpacity, RefreshControl } from 'react-native';
+import React, { useContext, useState } from 'react';
 import Appbar from '../../components/Appbar';
 import { StudentContext } from '../../context/StudentContext';
 import { colors } from '../../constant/Colors';
 
 const StudentSelection = ({ navigation }) => {
   const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);
+  const [refreshing, setRefreshing] = useState(false);
 
   const onStudentPress = (student) => {
     navigation.navigate("addhomework", { student }); 
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchStudentes(pageNumber);
+    setRefreshing(false);
   };
 
   return (
@@ -27,12 +34,17 @@ const StudentSelection = ({ navigation }) => {
             <Text style={styles.headerText}>Names</Text>
           </View>
         }
-        ListEmptyComponent={<Text style={styles.loadingText}>{loading ? 'Loading...' : 'No Students Found'}</Text>}
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <Text style={styles.loadingText}>{loading ? 'Loading...' : 'No Students Found'}</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => onStudentPress(item)} style={styles.tableRow}>
             <Text style={styles.rowText}>{item.userName}</Text>
           </TouchableOpacity>
         )}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
 
       <View style={styles.pagination}>
@@ -123,7 +135,12 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     textAlign: 'center',
-    marginTop: 10,
     fontSize: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 200,
   },
 });

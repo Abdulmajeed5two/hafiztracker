@@ -1,5 +1,5 @@
-import { FlatList, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator } from 'react-native';
-import React, { useContext, useState } from 'react';
+import { FlatList, StyleSheet, Text, View, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { useContext, useState, useCallback } from 'react';
 import { SuratContext } from '../../context/SuratContext';
 import { colors } from '../../constant/Colors';
 import Appbar from '../../components/Appbar';
@@ -9,6 +9,8 @@ const ITEMS_PER_PAGE = 13;
 const Surat = ({ navigation }) => {
   const { suratData, loading } = useContext(SuratContext);
   const [pageNumber, setPageNumber] = useState(1);
+  const [refreshing, setRefreshing] = useState(false);
+
   const startIndex = (pageNumber - 1) * ITEMS_PER_PAGE;
   const paginatedData = suratData?.slice(startIndex, startIndex + ITEMS_PER_PAGE) || [];
 
@@ -19,6 +21,14 @@ const Surat = ({ navigation }) => {
       setPageNumber(newPage);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // Simulate fetching updated data
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -35,6 +45,13 @@ const Surat = ({ navigation }) => {
         data={paginatedData}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ paddingTop: 50 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+          />
+        }
         ListEmptyComponent={
           loading ? <ActivityIndicator size="large" color={colors.primary} /> :
           <Text style={styles.loadingText}>No Surat Found</Text>

@@ -18,6 +18,11 @@ const sections = [
     route: 'ayat'
   },
   {
+    icon: icons.Quran,
+    label: { en: 'Surat', other: 'آیات' },
+    route: 'surat'
+  },
+  {
     icon: icons.Assign,
     label: { en: 'Assigned Students', other: 'تفویض شدہ طلباء' },
     route: 'tstd'
