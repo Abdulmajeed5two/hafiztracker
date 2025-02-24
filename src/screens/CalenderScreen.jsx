@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import Header from '../components/Header'
 import Attendence from '../components/Attendence'
+import HijriCalender from '../components/HijriCalender'
 
 const CalenderScreen = () => {
   return (
@@ -12,7 +13,7 @@ const CalenderScreen = () => {
         onNotifyPress={() => console.log('Notification Pressed')}
       />
       <View style={styles.cal}>
-        <Attendence />
+       <HijriCalender />
       </View>
     </View>
   )

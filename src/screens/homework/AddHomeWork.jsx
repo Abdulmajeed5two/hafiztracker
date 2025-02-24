@@ -24,6 +24,7 @@ const AddHomeWork = ({ navigation, route }) => {
   const { suratData, loading } = useContext(SuratContext);
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [ayats, setAyats] = useState([]);
 
   const [formData, setFormData] = useState({
     suratStartName: '',
@@ -59,7 +60,7 @@ const AddHomeWork = ({ navigation, route }) => {
         console.error('Error fetching masjidId:', error);
       }
     };
-
+  
     fetchMasjidId();
   }, [student]);
 
@@ -102,7 +103,10 @@ const AddHomeWork = ({ navigation, route }) => {
     ];
 
     if (requiredFields.some((field) => !formData[field]) || !formData.studentId) {
-      Alert.alert('Error', 'Please fill all required fields.');
+      Toast.show({
+        type : 'error',
+        text1:'Please fill in all required fields'
+      })
       return;
     }
 
@@ -133,6 +137,36 @@ const AddHomeWork = ({ navigation, route }) => {
       });
     }
   };
+
+  useEffect(() => {
+    if (formData.suratStartNumber) {
+      getAyatbySuratnumber(formData.suratStartNumber);
+    }
+  }, [formData.suratStartNumber]);
+  
+  useEffect(() => {
+    if (formData.suratEndNumber) {
+      getAyatbySuratnumber(formData.suratEndNumber);
+    }
+  }, [formData.suratEndNumber]);
+
+  const getAyatbySuratnumber = async (suratNumber) => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axiosInstance.post(
+        `Ayat/GetAyatBySuratId?suratnumber=${suratNumber}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log('Ayat Response:', response.data.result.data); 
+      setAyats(response.data.result.data || []); 
+    } catch (error) {
+      console.error('API Error:', error.response?.data || error.message);
+      setAyats([]); // Also reset on error
+    }
+  };
+  
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -171,7 +205,7 @@ const AddHomeWork = ({ navigation, route }) => {
                   {selectedDate.toLocaleDateString()}
                 </Text>
               </TouchableOpacity>
-
+<View style={styles.datePickerContainer}>
               <DatePicker
                 modal
                 open={openDatePicker}
@@ -182,7 +216,9 @@ const AddHomeWork = ({ navigation, route }) => {
                 }}
                 onCancel={() => setOpenDatePicker(false)}
                 minimumDate={new Date()}
-              />
+                style={styles.datepicker}
+                />
+                </View>
 
               <CustomSelectList
                 data={suratData.map((surat) => ({
@@ -202,23 +238,24 @@ const AddHomeWork = ({ navigation, route }) => {
                 onSelect={handleSuratEndSelect}
               />
 
-              <CustomSelectList
-                data={Array.from({ length: 20 }, (_, i) => ({
-                  key: `${i + 1}`,
-                  value: `${i + 1}`,
-                }))}
-                selectedValue={formData.startAyatNo || 'Select Start Ayah'}
-                onSelect={(val) => handleInputChange('startAyatNo', val)}
-              />
+<CustomSelectList
+  data={(Array.isArray(ayats) ? ayats : []).map((ayat) => ({
+    key: `${ayat.number}`,
+    value: `${ayat.text}`,
+  }))}
+  selectedValue={formData.startAyatNo || 'Select Start Ayah'}
+  onSelect={(val) => handleInputChange('startAyatNo', val)}
+/>
 
-              <CustomSelectList
-                data={Array.from({ length: 20 }, (_, i) => ({
-                  key: `${i + 1}`,
-                  value: `${i + 1}`,
-                }))}
-                selectedValue={formData.endAyatNo || 'Select End Ayah'}
-                onSelect={(val) => handleInputChange('endAyatNo', val)}
-              />
+<CustomSelectList
+  data={(Array.isArray(ayats) ? ayats : []).map((ayat) => ({
+    key: `${ayat.number}`,
+    value: `${ayat.text}`,
+  }))}
+  selectedValue={formData.endAyatNo || 'Select End Ayah'}
+  onSelect={(val) => handleInputChange('endAyatNo', val)}
+/>
+
             </>
           )}
         </View>
@@ -267,6 +304,16 @@ const styles = StyleSheet.create({
     color: colors.white,
     marginTop: 10,
   },
+  datePickerContainer:{
+    width: '100%',
+    height: 50,
+    backgroundColor: colors.white,
+    justifyContent: 'center',
+  },
+  datepicker:{
+    
+  }
+
 });
 
 export default AddHomeWork;

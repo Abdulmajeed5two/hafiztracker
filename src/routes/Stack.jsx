@@ -42,6 +42,7 @@ import AddStudentForm from '../screens/student/AddStudentForm';
 import Surat from '../screens/surat/Surat';
 import AddHomeWork from '../screens/homework/AddHomeWork';
 import StudentSelection from '../screens/homework/StudentSelection';
+import StdHomeWork from '../screens/student/StdHomeWork';
 
 const Stack = createNativeStackNavigator();
 
@@ -92,6 +93,7 @@ const StackNavigator = () => {
         <Stack.Screen name='sselect' component={SelectStudents}/>
         <Stack.Screen name='tstd' component={TeacherStudents}/>
         <Stack.Screen name='surat' component={Surat}/>
+        <Stack.Screen name='stdhomework' component={StdHomeWork}/>
     </Stack.Navigator>
   )
 }

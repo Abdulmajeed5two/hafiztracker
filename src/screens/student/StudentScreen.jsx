@@ -31,7 +31,7 @@ const sections = [
   {
     icon: icons.Quran,
     label: { en: 'Homework', other: 'پڑھیں' },
-    route: 'homework'
+    route: 'stdhomework'
   },
   {
     icon: icons.Quotes,
