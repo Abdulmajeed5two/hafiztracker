@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View,ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Inputs from '../constant/Inputs';
 import { colors } from '../constant/Colors';
@@ -15,6 +15,7 @@ const StudentAuth = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [deviceInfo, setDeviceInfo] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchDeviceInfo = async () => {
@@ -55,7 +56,7 @@ const StudentAuth = ({ navigation }) => {
       });
       return;
     }
-
+    setIsLoading(true); 
     try {
       const response = await axiosInstance.post('/Student/Login', {
         userName,
@@ -103,6 +104,8 @@ const StudentAuth = ({ navigation }) => {
         text1: 'Login Failed',
         text2: error.response?.data?.message || 'Invalid username or password.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -120,7 +123,11 @@ const StudentAuth = ({ navigation }) => {
           <Inputs  value={userName}  onChangeText={setUserName} placeholder="Enter Student Name" />
           <Inputs  value={password}  onChangeText={setPassword} placeholder="Enter Password" />
         </View>
-        <Button title="Sign in here" onPress={handleLogin} />
+        {isLoading ? (  
+          <ActivityIndicator size="large" color={colors.white} />
+        ) : (
+          <Button title="Sign in" onPress={handleLogin} />
+        )}
       </View>
       <Toast />
     </View>

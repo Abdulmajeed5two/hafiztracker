@@ -41,6 +41,7 @@ const icons = {
   Next: require('../assets/icons/next.png'),
   Prev: require('../assets/icons/pre.png'),
   Assign: require('../assets/icons/assign.png'),
+  ActUser: require('../assets/icons/actuser.png'),
 
   //images
   Student: require('../assets/img/std.jpg'),

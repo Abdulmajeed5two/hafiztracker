@@ -14,8 +14,8 @@ const sections = [
   },
   {
     icon: icons.Quran,
-    label: { en: 'Ayats', other: 'آیات' },
-    route: 'quran'
+    label: { en: 'Surat', other: 'سورت' },
+    route: 'surat'
   },
   {
     icon: icons.Logout,

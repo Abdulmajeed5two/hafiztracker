@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import Inputs from '../constant/Inputs';
 import { colors } from '../constant/Colors';
@@ -15,6 +15,8 @@ const ParentAuth = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [deviceInfo, setDeviceInfo] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
 
   useEffect(() => {
     const fetchDeviceInfo = async () => {
@@ -55,7 +57,7 @@ const ParentAuth = ({ navigation }) => {
       });
       return;
     }
-
+    setIsLoading(true);
     try {
       const response = await axiosInstance.post('/Parent/Login', {
         userName,
@@ -101,6 +103,8 @@ const ParentAuth = ({ navigation }) => {
         text1: 'Login Failed',
         text2: error.response?.data?.message || 'Invalid username or password.',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,7 +119,11 @@ const ParentAuth = ({ navigation }) => {
           <Inputs value={userName}  onChangeText={setUserName} placeholder="Enter Parent Name" />
           <Inputs  value={password}  onChangeText={setPassword} placeholder="Enter Password" secureTextEntry={true} />
         </View>
-        <Button title="Sign in"  onPress={handleLogin}/>
+        {isLoading ? (  
+          <ActivityIndicator size="large" color={colors.white} />
+        ) : (
+          <Button title="Sign in" onPress={handleLogin} />
+        )}
       </View>
       <Toast />
       

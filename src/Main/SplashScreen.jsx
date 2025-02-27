@@ -9,7 +9,8 @@ import icons from '../constant/Icons';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isLoading, setIsLoading] = useState(true);
+  
 
   useEffect(() => {
     const checkTokenAndRedirect = async () => {

@@ -7,6 +7,7 @@ import { ParentsProvider } from './ParentsContext';
 import { MasjidProvider } from './MasjidContext';
 import { SuratProvider } from './SuratContext';
 import { AyatBysuratnumberProvider } from './AyatbySuratNumber';
+import { HomeProvider } from './HomeWorkContext';
 
 
 const ContextProvider = ({ children }) => {
@@ -19,7 +20,9 @@ const ContextProvider = ({ children }) => {
               <MasjidProvider>
                 <SuratProvider>
                   <AyatBysuratnumberProvider >
+                    <HomeProvider>
                   {children}
+                    </HomeProvider>
                   </AyatBysuratnumberProvider>
                 </SuratProvider>
               </MasjidProvider>

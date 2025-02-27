@@ -34,9 +34,9 @@ const sections = [
     route: 'stdselection'
   },
   {
-    icon: icons.Quotes,
-    label: { en: 'Quotes', other: 'اقتباسات' },
-    route: 'quote'
+    icon: icons.ActUser,
+    label: { en: 'Activities', other: 'سرگرمیاں' },
+    route: 'checkactstd'
   }
 ];
 

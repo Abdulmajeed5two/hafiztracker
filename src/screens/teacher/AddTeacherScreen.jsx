@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View, Alert, ScrollView, ToastAndroid } from 'react-native';
+import { Image, StyleSheet, Text, View, Alert, ScrollView } from 'react-native';
 import React, { useState } from 'react';
 import Inputs from '../../constant/Inputs';
 import { colors } from '../../constant/Colors';
@@ -8,7 +8,9 @@ import CustomDropdown from '../../components/CustomDropdown';
 import axiosInstance from '../../services/axiosInterceptor';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SelectAttachment from 'react-native-select-attachment';
+import { DocumentPicker } from 'react-native-document-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
+
 
 const AddTeacherScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -25,7 +27,7 @@ const AddTeacherScreen = ({ navigation }) => {
     cnic: '',
     refernceName: '',
     referencePhone: '',
-    masjidId: '36', // Default Masjid ID
+    masjidId: '36',
     ProfileImage: '',
     Attachment: '',
   });
@@ -52,15 +54,14 @@ const AddTeacherScreen = ({ navigation }) => {
     }
 
     try {
-      const token = await AsyncStorage.getItem('token')
-      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formData,{
+      const token = await AsyncStorage.getItem('token');
+      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formData, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
       console.log('Success:', response.data);
 
-      // Show toast success message
       Toast.show({
         type: 'success',
         text1: 'Registration Successful',
@@ -73,32 +74,50 @@ const AddTeacherScreen = ({ navigation }) => {
       Alert.alert('Error', 'Failed to register teacher.');
     }
   };
+ 
 
-  var options = {
-    maxFileSize: 10,
-    fileTypes: ['png', 'jpg', 'pdf'],
-    disableCameraPhotos: false,
-    disableCameraVideos: false,
-    disablePhotos: false,
-    disableVideos: false,
-    disableFiles: false,
-    cameraLabel: 'Camera',
-    albumLabel: 'Album',
-    filesLabel: 'Files',
-    enableImageScaling : true,
-    imageScale : 0.90,
-    maxImageWidth : 950
-};
-
-SelectAttachment.showPicker(options, (res) => {
-  if(res.error){
-      console.error(res.error);
-  } else {
-      console.error(res.fileName);
-      console.error(res.fileType); 
-      console.error(res.base64);
-  }
-});
+ 
+  const handleAttachmentSelection = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.images, DocumentPicker.types.pdf], // Customize file types as needed
+      });
+      // Store the selected file path or URI
+      setFormData((prev) => ({
+        ...prev,
+        Attachment: res.uri, // You can store other data like res.name if needed
+      }));
+      console.log('Selected file:', res);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User canceled the picker');
+      } else {
+        console.error('DocumentPicker error:', err);
+      }
+    }
+  };
+  const handleProfileImageSelection = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 1,
+      },
+      (response) => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorCode) {
+          console.error('Image Picker Error:', response.errorMessage);
+        } else {
+          const source = { uri: response.assets[0].uri };
+          setFormData((prev) => ({
+            ...prev,
+            ProfileImage: source.uri, // Update Profile Image URI in state
+          }));
+          console.log('Selected Image:', response.assets[0].uri);
+        }
+      }
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -109,21 +128,82 @@ SelectAttachment.showPicker(options, (res) => {
         <Text style={styles.title}>Teacher Registration</Text>
       </View>
 
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.scrollContent}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.formContainer}>
-          <Inputs placeholder="Teacher Name" value={formData.teacherName} onChangeText={(text) => handleInputChange('teacherName', text)} />
-          <Inputs placeholder="Username" value={formData.userName} onChangeText={(text) => handleInputChange('userName', text)} />
-          <Inputs placeholder="Email" value={formData.email} onChangeText={(text) => handleInputChange('email', text)} />
-          <Inputs placeholder="Password" secureTextEntry value={formData.password} onChangeText={(text) => handleInputChange('password', text)} />
-          <Inputs placeholder="Confirm Password" secureTextEntry value={formData.confirmPassword} onChangeText={(text) => handleInputChange('confirmPassword', text)} />
-          <Inputs placeholder="Phone" value={formData.phone} onChangeText={(text) => handleInputChange('phone', text)} />
-          <Inputs placeholder="WhatsApp" value={formData.whatsApp} onChangeText={(text) => handleInputChange('whatsApp', text)} />
-          <Inputs placeholder="Area" value={formData.area} onChangeText={(text) => handleInputChange('area', text)} />
-          <Inputs placeholder="Address" value={formData.address} onChangeText={(text) => handleInputChange('address', text)} />
-          <CustomDropdown data={genderOptions} placeholder="Select Gender" onSelect={(item) => handleInputChange('gender', item.value)} />
-          <Inputs placeholder="CNIC No" value={formData.cnic} onChangeText={(text) => handleInputChange('cnic', text)} />
-          <Inputs placeholder="Reference Name" value={formData.refernceName} onChangeText={(text) => handleInputChange('refernceName', text)} />
-          <Inputs placeholder="Reference Phone No" value={formData.referencePhone} onChangeText={(text) => handleInputChange('referencePhone', text)} />
+          <Inputs
+            placeholder="Teacher Name"
+            value={formData.teacherName}
+            onChangeText={(text) => handleInputChange('teacherName', text)}
+          />
+          <Inputs
+            placeholder="Username"
+            value={formData.userName}
+            onChangeText={(text) => handleInputChange('userName', text)}
+          />
+          <Inputs
+            placeholder="Email"
+            value={formData.email}
+            onChangeText={(text) => handleInputChange('email', text)}
+          />
+          <Inputs
+            placeholder="Password"
+            secureTextEntry
+            value={formData.password}
+            onChangeText={(text) => handleInputChange('password', text)}
+          />
+          <Inputs
+            placeholder="Confirm Password"
+            secureTextEntry
+            value={formData.confirmPassword}
+            onChangeText={(text) => handleInputChange('confirmPassword', text)}
+          />
+          <Inputs
+            placeholder="Phone"
+            value={formData.phone}
+            onChangeText={(text) => handleInputChange('phone', text)}
+          />
+          <Inputs
+            placeholder="WhatsApp"
+            value={formData.whatsApp}
+            onChangeText={(text) => handleInputChange('whatsApp', text)}
+          />
+          <Inputs
+            placeholder="Area"
+            value={formData.area}
+            onChangeText={(text) => handleInputChange('area', text)}
+          />
+          <Inputs
+            placeholder="Address"
+            value={formData.address}
+            onChangeText={(text) => handleInputChange('address', text)}
+          />
+          <CustomDropdown
+            data={genderOptions}
+            placeholder="Select Gender"
+            onSelect={(item) => handleInputChange('gender', item.value)}
+          />
+          <Inputs
+            placeholder="CNIC No"
+            value={formData.cnic}
+            onChangeText={(text) => handleInputChange('cnic', text)}
+          />
+          <Inputs
+            placeholder="Reference Name"
+            value={formData.refernceName}
+            onChangeText={(text) => handleInputChange('refernceName', text)}
+          />
+          <Inputs
+            placeholder="Reference Phone No"
+            value={formData.referencePhone}
+            onChangeText={(text) => handleInputChange('referencePhone', text)}
+          />
+          {/* Button to trigger attachment selection */}
+          <Button title="Select Attachment" onPress={handleAttachmentSelection} />
         </View>
       </ScrollView>
 
@@ -131,7 +211,6 @@ SelectAttachment.showPicker(options, (res) => {
         <Button title="Register Now" onPress={RegisterTeacher} />
       </View>
 
-      {/* Toast Message */}
       <Toast />
     </View>
   );
@@ -162,7 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
-    overflow: 'hidden', // Ensures the icon fits properly inside the circle
+    overflow: 'hidden',
   },
   logo: {
     width: '80%',
@@ -182,7 +261,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingBottom: 100, // Adds padding so button doesn't overlap inputs
+    paddingBottom: 100,
   },
   formContainer: {
     width: '100%',

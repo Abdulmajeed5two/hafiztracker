@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
@@ -9,12 +9,12 @@ import Button from '../constant/Buttons';
 import icons from '../constant/Icons';
 import axiosInstance from '../services/axiosInterceptor';
 
-
 const TeacherAuth = ({ navigation }) => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [deviceInfo, setDeviceInfo] = useState({});
+  const [isLoading, setIsLoading] = useState(false);  // Track loading state
 
   useEffect(() => {
     const fetchDeviceInfo = async () => {
@@ -56,6 +56,8 @@ const TeacherAuth = ({ navigation }) => {
       return;
     }
 
+    setIsLoading(true);  // Set loading state to true when login starts
+
     try {
       const response = await axiosInstance.post('/Teacher/Login', {
         userName,
@@ -68,8 +70,8 @@ const TeacherAuth = ({ navigation }) => {
       const { result } = response.data;
       const token = result?.token;
       const status = result?.status;
-      const Id = result?.id
-      const masjidId = result?.masjidId
+      const Id = result?.id;
+      const masjidId = result?.masjidId;
 
       if (!token) {
         throw new Error('Token is missing in the response');
@@ -85,11 +87,11 @@ const TeacherAuth = ({ navigation }) => {
         return;
       }
 
-      // Store token & username
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('userName', result?.userName || '');
       await AsyncStorage.setItem('id', Id.toString());
       await AsyncStorage.setItem('masjidId', masjidId.toString());
+
       Toast.show({
         type: 'success',
         text1: 'Login Successful',
@@ -104,6 +106,8 @@ const TeacherAuth = ({ navigation }) => {
         text1: 'Login Failed',
         text2: error.response?.data?.message || 'Invalid username or password.',
       });
+    } finally {
+      setIsLoading(false);  // Set loading state back to false after login attempt is complete
     }
   };
 
@@ -124,7 +128,13 @@ const TeacherAuth = ({ navigation }) => {
             onChangeText={setPassword}
           />
         </View>
-        <Button title="Sign in" onPress={handleLogin} />
+
+        {/* Show ActivityIndicator while loading */}
+        {isLoading ? (
+          <ActivityIndicator size="large" color={colors.white} style={styles.loader} />
+        ) : (
+          <Button title="Sign in" onPress={handleLogin} />
+        )}
       </View>
       <Toast />
     </View>
@@ -154,6 +164,9 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: '100%',
     marginBottom: 20,
+  },
+  loader: {
+    marginTop: 20,  // Add some margin to space it out
   },
   title: {
     fontSize: 18,

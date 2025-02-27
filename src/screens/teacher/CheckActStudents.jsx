@@ -1,15 +1,14 @@
 import { FlatList, StyleSheet, Text, View, TouchableOpacity, RefreshControl } from 'react-native';
 import React, { useContext, useState } from 'react';
-import Appbar from '../../components/Appbar';
 import { StudentContext } from '../../context/StudentContext';
-import { colors } from '../../constant/Colors';
+import Appbar from '../../components/Appbar';
 
-const StudentSelection = ({ navigation }) => {
+const CheckActStudents = ({ navigation }) => {
   const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);
   const [refreshing, setRefreshing] = useState(false);
 
   const onStudentPress = (student) => {
-    navigation.navigate("addhomework", { student }); 
+    navigation.navigate("actuser", { student }); 
   };
 
   const onRefresh = async () => {
@@ -70,7 +69,7 @@ const StudentSelection = ({ navigation }) => {
   );
 };
 
-export default StudentSelection;
+export default CheckActStudents;
 
 const styles = StyleSheet.create({
   container: {

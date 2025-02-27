@@ -15,18 +15,19 @@ import moment from 'moment-timezone';
 import { colors } from '../constant/Colors';
 import icons from '../constant/Icons';
 import BackButton from '../components/BackButton';
-import azan from '../assets/sound/salah.mp3'
+import azan from '../assets/sound/salah.mp3';
 import { LanguageContext } from '../context/LanguageContext';
 
-
-const PrayerTimeScreen = ({navigation}) => {
-  const {language} = useContext(LanguageContext);
+const PrayerTimeScreen = ({ navigation }) => {
+  const { language } = useContext(LanguageContext);
   const [coordinates, setCoordinates] = useState(null);
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [currentPrayer, setCurrentPrayer] = useState(null);
   const [upcomingPrayer, setUpcomingPrayer] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [sevenDayPrayerTimes, setSevenDayPrayerTimes] = useState([]);
+  const [calcMethod, setCalcMethod] = useState('MoonsightingCommittee');
 
   const requestLocationPermission = async () => {
     try {
@@ -45,12 +46,29 @@ const PrayerTimeScreen = ({navigation}) => {
     }
   };
 
+  const getPrayerTimes = (coordinates, date, method) => {
+    let params;
+    switch (method) {
+      case 'Hanafi':
+        params = CalculationMethod.MuslimWorldLeague();
+        params.madhab = 'Hanafi';
+        break;
+      case 'Shafi':
+        params = CalculationMethod.MuslimWorldLeague();
+        params.madhab = 'Shafi';
+        break;
+      default:
+        params = CalculationMethod.MoonsightingCommittee();
+    }
+    return new PrayerTimes(coordinates, date, params);
+  };
+
   const getSevenDayPrayerTimes = (coordinates) => {
     const sevenDayTimes = [];
     const startDate = moment();
     for (let i = 0; i < 7; i++) {
       const date = startDate.clone().add(i, 'days').toDate();
-      const times = new PrayerTimes(coordinates, date, CalculationMethod.MoonsightingCommittee());
+      const times = getPrayerTimes(coordinates, date, calcMethod);
       sevenDayTimes.push({
         date: moment(date).format('MMM DD'),
         fajr: moment(times.fajr).format('h:mm A'),
@@ -63,23 +81,24 @@ const PrayerTimeScreen = ({navigation}) => {
     return sevenDayTimes;
   };
 
-  useEffect(() => {
-    const fetchLocationAndPrayerTimes = async () => {
+  const fetchLocationAndPrayerTimes = async () => {
+    try {
       const hasPermission = await requestLocationPermission();
       if (!hasPermission) {
         setLoading(false);
+        setError('Location permission denied. Please enable it in settings.');
         return;
       }
 
+      setLoading(true);
       Geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           const userCoordinates = new Coordinates(latitude, longitude);
           setCoordinates(userCoordinates);
 
-          const params = CalculationMethod.MoonsightingCommittee();
           const date = new Date();
-          const times = new PrayerTimes(userCoordinates, date, params);
+          const times = getPrayerTimes(userCoordinates, date, calcMethod);
           setPrayerTimes(times);
 
           const current = times.currentPrayer();
@@ -92,17 +111,37 @@ const PrayerTimeScreen = ({navigation}) => {
           setSevenDayPrayerTimes(sevenDayTimes);
 
           setLoading(false);
+          setError(null);
         },
         (error) => {
-          console.error(error);
+          console.error('Location Error:', error);
+          let errorMessage = 'Unable to fetch location';
+          switch (error.code) {
+            case 1:
+              errorMessage = 'Location permission denied';
+              break;
+            case 2:
+              errorMessage = 'Location unavailable. Please check GPS';
+              break;
+            case 3:
+              errorMessage = 'Location request timed out';
+              break;
+          }
+          setError(errorMessage);
           setLoading(false);
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       );
-    };
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('An unexpected error occurred while fetching location');
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchLocationAndPrayerTimes();
-  }, []);
+  }, [calcMethod]);
 
   const prayerName = (prayer) => {
     switch (prayer) {
@@ -121,8 +160,7 @@ const PrayerTimeScreen = ({navigation}) => {
     }
   };
 
-  const formatTime = (time) =>
-    time ? moment(time).format('h:mm A') : 'N/A';
+  const formatTime = (time) => (time ? moment(time).format('h:mm A') : 'N/A');
 
   const renderPrayerTimeRow = ({ item }) => {
     const isActive = item === currentPrayer || item === upcomingPrayer;
@@ -160,6 +198,29 @@ const PrayerTimeScreen = ({navigation}) => {
     <Text style={styles.sectionHeader}>{title}</Text>
   );
 
+  const MethodSelector = () => (
+    <View style={styles.methodSelector}>
+      <TouchableOpacity
+        style={[styles.methodButton, calcMethod === 'MoonsightingCommittee' && styles.activeMethod]}
+        onPress={() => setCalcMethod('MoonsightingCommittee')}
+      >
+        <Text style={styles.methodButtonText}>Standard</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.methodButton, calcMethod === 'Hanafi' && styles.activeMethod]}
+        onPress={() => setCalcMethod('Hanafi')}
+      >
+        <Text style={styles.methodButtonText}>Hanafi</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.methodButton, calcMethod === 'Shafi' && styles.activeMethod]}
+        onPress={() => setCalcMethod('Shafi')}
+      >
+        <Text style={styles.methodButtonText}>Shafi'i</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   const renderItem = ({ item }) => {
     if (item.type === 'today') {
       return (
@@ -187,11 +248,11 @@ const PrayerTimeScreen = ({navigation}) => {
           <View style={styles.sevenDayTableContainer}>
             <View style={styles.sevenDayTableHeader}>
               <Text style={[styles.sevenDayTableHeaderCell, styles.dateHeaderCell]}>Date</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>{language === "English" ? 'Fajr':'فجر'}</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Dhuhr':'ظہر'}</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Asr':'عصر'}</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Maghrib':'مغرب'}</Text>
-              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Isha':'عشاء'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === "English" ? 'Fajr' : 'فجر'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Dhuhr' : 'ظہر'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Asr' : 'عصر'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Maghrib' : 'مغرب'}</Text>
+              <Text style={styles.sevenDayTableHeaderCell}>{language === 'English' ? 'Isha' : 'عشاء'}</Text>
             </View>
             <FlatList
               data={sevenDayPrayerTimes}
@@ -219,31 +280,38 @@ const PrayerTimeScreen = ({navigation}) => {
     );
   }
 
-  if (!coordinates) {
+  if (!coordinates || error) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>
-          Unable to fetch location. Please try again.
+          {error || 'Unable to fetch location. Please try again.'}
         </Text>
+        <TouchableOpacity 
+          style={styles.retryButton}
+          onPress={fetchLocationAndPrayerTimes}
+        >
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-            <BackButton onPress={() => navigation.goBack()} />
-    <FlatList
-      data={data}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => index.toString()}
-      contentContainerStyle={styles.container}
-      ListHeaderComponent={
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Prayer Time</Text>
-        </View>
-      }
+      <BackButton onPress={() => navigation.goBack()} />
+      <MethodSelector />
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={styles.contentContainer}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Prayer Time</Text>
+          </View>
+        }
       />
-      </View>
+    </View>
   );
 };
 
@@ -251,8 +319,11 @@ export default PrayerTimeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     backgroundColor: colors.white,
+  },
+  contentContainer: {
+    paddingBottom: 20,
   },
   Icon: {
     width: 20,
@@ -391,5 +462,33 @@ const styles = StyleSheet.create({
     color: colors.red,
     textAlign: 'center',
     padding: 20,
+  },
+  retryButton: {
+    marginTop: 20,
+    backgroundColor: colors.PrimaryGreen,
+    padding: 10,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: colors.white,
+    fontSize: 16,
+  },
+  methodSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10,
+    backgroundColor: colors.lightGray,
+  },
+  methodButton: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: colors.white,
+  },
+  activeMethod: {
+    backgroundColor: colors.PrimaryGreen,
+  },
+  methodButtonText: {
+    color: colors.black,
+    fontSize: 14,
   },
 });

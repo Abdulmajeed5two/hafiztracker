@@ -14,7 +14,6 @@ export const getFcmToken = async () => {
   }
   return token;
 };
-
 export async function registerAppWithFCM() {
   if (!messaging().isDeviceRegisteredForRemoteMessages) {
     await messaging()
@@ -27,7 +26,6 @@ export async function registerAppWithFCM() {
       });
   }
 }
-
 export async function unRegisterAppWithFCM() {
   if (messaging().isDeviceRegisteredForRemoteMessages) {
     await messaging()

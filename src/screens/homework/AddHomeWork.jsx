@@ -6,6 +6,7 @@ import {
   ScrollView,
   Alert,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useState, useEffect, useContext } from 'react';
 import DatePicker from 'react-native-date-picker';
@@ -18,13 +19,22 @@ import Toast from 'react-native-toast-message';
 import CustomSelectList from '../../components/SelectList';
 import { SuratContext } from '../../context/SuratContext';
 
+const ITEMS_PER_PAGE = 15;
+
 const AddHomeWork = ({ navigation, route }) => {
   const { student } = route.params || {};
-
   const { suratData, loading } = useContext(SuratContext);
+
   const [openDatePicker, setOpenDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [ayats, setAyats] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [typePage, setTypePage] = useState(1);
+  const [suratStartPage, setSuratStartPage] = useState(1);
+  const [suratEndPage, setSuratEndPage] = useState(1);
+  const [startAyatPage, setStartAyatPage] = useState(1);
+  const [endAyatPage, setEndAyatPage] = useState(1);
 
   const [formData, setFormData] = useState({
     suratStartName: '',
@@ -34,7 +44,7 @@ const AddHomeWork = ({ navigation, route }) => {
     startAyatNo: '',
     endAyatNo: '',
     endDate: selectedDate.toISOString(),
-    studentId: student?.id ? Number(student.id) : null,
+    studentId: student?.studentId ? Number(student.studentId) : null,
     type: '',
     masjidId: '',
   });
@@ -47,9 +57,6 @@ const AddHomeWork = ({ navigation, route }) => {
       return;
     }
 
-    console.log('Student Data:', student);
-    console.log('Student ID:', student.id);
-
     const fetchMasjidId = async () => {
       try {
         const masjidId = await AsyncStorage.getItem('masjidId');
@@ -60,7 +67,6 @@ const AddHomeWork = ({ navigation, route }) => {
         console.error('Error fetching masjidId:', error);
       }
     };
-  
     fetchMasjidId();
   }, [student]);
 
@@ -104,14 +110,13 @@ const AddHomeWork = ({ navigation, route }) => {
 
     if (requiredFields.some((field) => !formData[field]) || !formData.studentId) {
       Toast.show({
-        type : 'error',
-        text1:'Please fill in all required fields'
-      })
+        type: 'error',
+        text1: 'Please fill in all required fields',
+      });
       return;
     }
 
-    console.log('Form Data being sent:', formData);
-
+    setIsSubmitting(true);
     try {
       const token = await AsyncStorage.getItem('token');
       const response = await axiosInstance.post('/HomeWork/AddHomeWork', formData, {
@@ -133,8 +138,10 @@ const AddHomeWork = ({ navigation, route }) => {
       Toast.show({
         type: 'error',
         text1: 'Error',
-        text2: error.response?.data?.message || 'Failed to assign homework. Please try again.',
+        text2: error.response?.data?.message || 'Failed to assign homework.',
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -143,7 +150,7 @@ const AddHomeWork = ({ navigation, route }) => {
       getAyatbySuratnumber(formData.suratStartNumber);
     }
   }, [formData.suratStartNumber]);
-  
+
   useEffect(() => {
     if (formData.suratEndNumber) {
       getAyatbySuratnumber(formData.suratEndNumber);
@@ -155,24 +162,87 @@ const AddHomeWork = ({ navigation, route }) => {
       const token = await AsyncStorage.getItem('token');
       const response = await axiosInstance.post(
         `Ayat/GetAyatBySuratId?suratnumber=${suratNumber}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log('Ayat Response:', response.data.result.data); 
-      setAyats(response.data.result.data || []); 
+      setAyats(response.data.result.data || []);
     } catch (error) {
       console.error('API Error:', error.response?.data || error.message);
-      setAyats([]); // Also reset on error
+      setAyats([]);
     }
   };
-  
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  if (loading) return <Text>Loading...</Text>;
+  const typeOptions = [
+    { key: '1', value: 'Sabaq' },
+    { key: '2', value: 'Manzil' },
+    { key: '3', value: 'Sabqi' },
+  ].slice(0, typePage * ITEMS_PER_PAGE);
+
+  const suratOptions = suratData
+    .map((surat) => ({
+      key: surat.suratName,
+      value: surat.suratName,
+    }))
+    .slice(0, suratStartPage * ITEMS_PER_PAGE);
+
+  const suratEndOptions = suratData
+    .map((surat) => ({
+      key: surat.suratName,
+      value: surat.suratName,
+    }))
+    .slice(0, suratEndPage * ITEMS_PER_PAGE);
+
+  const ayatOptions = (Array.isArray(ayats) ? ayats : [])
+    .map((ayat) => ({
+      key: `${ayat.number}`,
+      value: `${ayat.text}`,
+    }))
+    .slice(0, startAyatPage * ITEMS_PER_PAGE);
+
+  const endAyatOptions = (Array.isArray(ayats) ? ayats : [])
+    .map((ayat) => ({
+      key: `${ayat.number}`,
+      value: `${ayat.text}`,
+    }))
+    .slice(0, endAyatPage * ITEMS_PER_PAGE);
+
+  const loadMore = (dropdownType) => {
+    switch (dropdownType) {
+      case 'type':
+        if (typePage * ITEMS_PER_PAGE < 3) setTypePage((prev) => prev + 1);
+        break;
+      case 'suratStart':
+        if (suratStartPage * ITEMS_PER_PAGE < suratData.length)
+          setSuratStartPage((prev) => prev + 1);
+        break;
+      case 'suratEnd':
+        if (suratEndPage * ITEMS_PER_PAGE < suratData.length)
+          setSuratEndPage((prev) => prev + 1);
+        break;
+      case 'startAyat':
+        if (startAyatPage * ITEMS_PER_PAGE < ayats.length)
+          setStartAyatPage((prev) => prev + 1);
+        break;
+      case 'endAyat':
+        if (endAyatPage * ITEMS_PER_PAGE < ayats.length)
+          setEndAyatPage((prev) => prev + 1);
+        break;
+      default:
+        break;
+    }
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.white} />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -180,32 +250,31 @@ const AddHomeWork = ({ navigation, route }) => {
         <View style={styles.iconContainer}>
           <Image source={icons.MasjidIcon} style={styles.logo} />
         </View>
-        <Text style={styles.title}>Home Work</Text>
+        <Text style={styles.title}>Assign Home Work</Text>
       </View>
 
       <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.inputContainer}>
           <CustomSelectList
-            data={[
-              { key: '1', value: 'Sabaq' },
-              { key: '2', value: 'Manzil' },
-              { key: '3', value: 'Sabqi' },
-            ]}
+            data={typeOptions}
             selectedValue={formData.type || 'Select Type'}
             onSelect={(val) => handleInputChange('type', val)}
+            onEndReached={() => loadMore('type')}
+            maxItems={typeOptions.length}
           />
 
           {formData.type && (
             <>
               <TouchableOpacity
-                style={styles.dateInput}
+                style={styles.dateButton}
                 onPress={() => setOpenDatePicker(true)}
               >
-                <Text style={styles.dateText}>
+                <Text style={styles.dateButtonText}>
                   {selectedDate.toLocaleDateString()}
                 </Text>
+                <Image source={icons.CalendarIcon} style={styles.calendarIcon} />
               </TouchableOpacity>
-<View style={styles.datePickerContainer}>
+
               <DatePicker
                 modal
                 open={openDatePicker}
@@ -216,53 +285,58 @@ const AddHomeWork = ({ navigation, route }) => {
                 }}
                 onCancel={() => setOpenDatePicker(false)}
                 minimumDate={new Date()}
-                style={styles.datepicker}
-                />
-                </View>
+                mode="date"
+                theme="light"
+              />
 
               <CustomSelectList
-                data={suratData.map((surat) => ({
-                  key: surat.suratName,
-                  value: surat.suratName,
-                }))}
+                data={suratOptions}
                 selectedValue={formData.suratStartName || 'Select Start Surah'}
                 onSelect={handleSuratStartSelect}
+                onEndReached={() => loadMore('suratStart')}
+                maxItems={suratData.length}
               />
 
               <CustomSelectList
-                data={suratData.map((surat) => ({
-                  key: surat.suratName,
-                  value: surat.suratName,
-                }))}
+                data={suratEndOptions}
                 selectedValue={formData.suratEndName || 'Select End Surah'}
                 onSelect={handleSuratEndSelect}
+                onEndReached={() => loadMore('suratEnd')}
+                maxItems={suratData.length}
               />
 
-<CustomSelectList
-  data={(Array.isArray(ayats) ? ayats : []).map((ayat) => ({
-    key: `${ayat.number}`,
-    value: `${ayat.text}`,
-  }))}
-  selectedValue={formData.startAyatNo || 'Select Start Ayah'}
-  onSelect={(val) => handleInputChange('startAyatNo', val)}
-/>
+              <CustomSelectList
+                data={ayatOptions}
+                selectedValue={formData.startAyatNo || 'Select Start Ayah'}
+                onSelect={(val) => handleInputChange('startAyatNo', val)}
+                onEndReached={() => loadMore('startAyat')}
+                maxItems={ayats.length}
+              />
 
-<CustomSelectList
-  data={(Array.isArray(ayats) ? ayats : []).map((ayat) => ({
-    key: `${ayat.number}`,
-    value: `${ayat.text}`,
-  }))}
-  selectedValue={formData.endAyatNo || 'Select End Ayah'}
-  onSelect={(val) => handleInputChange('endAyatNo', val)}
-/>
-
+              <CustomSelectList
+                data={endAyatOptions}
+                selectedValue={formData.endAyatNo || 'Select End Ayah'}
+                onSelect={(val) => handleInputChange('endAyatNo', val)}
+                onEndReached={() => loadMore('endAyat')}
+                maxItems={ayats.length}
+              />
             </>
           )}
         </View>
       </ScrollView>
 
       <View style={styles.buttonContainer}>
-        <Button title="Assign Home Work" onPress={AssignHomeWork} />
+        <Button
+          title={isSubmitting ? '' : 'Assign Home Work'}
+          onPress={AssignHomeWork}
+          disabled={isSubmitting}
+          style={isSubmitting ? styles.disabledButton : null}
+          children={
+            isSubmitting ? (
+              <ActivityIndicator size="small" color={colors.white} />
+            ) : null
+          }
+        />
       </View>
 
       <Toast />
@@ -277,20 +351,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   header: {
-    margin: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
     justifyContent: 'center',
+    marginVertical: 20,
   },
   iconContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 15,
     overflow: 'hidden',
   },
   logo: {
@@ -299,21 +372,52 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: '700',
     color: colors.white,
-    marginTop: 10,
   },
-  datePickerContainer:{
-    width: '100%',
-    height: 50,
+  formContainer: {
+    flex: 1,
+  },
+  inputContainer: {
+    paddingBottom: 20,
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.white,
-    justifyContent: 'center',
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 10,
+    elevation: 2,
   },
-  datepicker:{
-    
-  }
-
+  dateButtonText: {
+    flex: 1,
+    fontSize: 16,
+    color: colors.black,
+  },
+  calendarIcon: {
+    width: 24,
+    height: 24,
+    tintColor: colors.PrimaryGreen,
+  },
+  buttonContainer: {
+    paddingVertical: 20,
+  },
+  disabledButton: {
+    backgroundColor: colors.LightGreen,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.PrimaryGreen,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: colors.white,
+  },
 });
 
 export default AddHomeWork;

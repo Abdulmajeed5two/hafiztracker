@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import Inputs from '../constant/Inputs';
 import { colors } from '../constant/Colors';
 import Button from '../constant/Buttons';
@@ -22,6 +22,7 @@ const MasjidAuth = ({ navigation }) => {
   const [address, setAddress] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [deviceInfo, setDeviceInfo] = useState({});
+  const [isLoading, setIsLoading] = useState(false);  // Added loading state
 
   useEffect(() => {
     const fetchDeviceInfo = async () => {
@@ -50,58 +51,60 @@ const MasjidAuth = ({ navigation }) => {
   }, []);
 
   const handleLogin = async () => {
+    setIsLoading(true);  // Show the loader
     try {
       const response = await axiosInstance.post('/Masjid/Login', {
-            userName: userName,
-            password: password,
-            deviceId: deviceId,
-        });
-        console.log('Login Response:', response.data.result.id);
+        userName: userName,
+        password: password,
+        deviceId: deviceId,
+      });
 
-        const { result } = response.data;
-        const token = result?.token;    
-        const status = result?.status;
-        const username = result?.userName;
-        const Id = result?.id;
+      setIsLoading(false);  // Hide the loader once the request is complete
+      console.log('Login Response:', response.data.result.id);
 
-        if (!token) {
-            throw new Error('Token is missing in the response');
-        }
+      const { result } = response.data;
+      const token = result?.token;    
+      const status = result?.status;
+      const username = result?.userName;
+      const Id = result?.id;
 
-        if (status === 1) {
-            navigation.navigate('verify');
-            Toast.show({
-                type: 'info',
-                text1: 'Verification Required',
-                text2: 'Please verify your account to proceed.',
-            });
-            return;
-        }
-        if (token) {
-            await AsyncStorage.setItem('token', token);
-            await AsyncStorage.setItem('userName', username)
-            await AsyncStorage.setItem('id', Id.toString());
-            console.log('Token:', token);
-            Toast.show({
-                type: 'success',
-                text1: 'Login Successful',
-                text2: 'You have successfully logged in!',
-            });
-            navigation.navigate('MasjidScreen');
-        } else {
-            throw new Error('Invalid Token');
-        }
-    } catch (error) {
-        console.error('Login Error:', error);
+      if (!token) {
+        throw new Error('Token is missing in the response');
+      }
+
+      if (status === 1) {
+        navigation.navigate('verify');
         Toast.show({
-            type: 'error',
-            text1: 'Login Failed',
-            text2: error.response?.data?.message || 'Invalid username or password. Please try again.',
+          type: 'info',
+          text1: 'Verification Required',
+          text2: 'Please verify your account to proceed.',
         });
+        return;
+      }
+      if (token) {
+        await AsyncStorage.setItem('token', token);
+        await AsyncStorage.setItem('userName', username)
+        await AsyncStorage.setItem('id', Id.toString());
+        console.log('Token:', token);
+        Toast.show({
+          type: 'success',
+          text1: 'Login Successful',
+          text2: 'You have successfully logged in!',
+        });
+        navigation.navigate('MasjidScreen');
+      } else {
+        throw new Error('Invalid Token');
+      }
+    } catch (error) {
+      setIsLoading(false);  // Hide the loader if an error occurs
+      console.error('Login Error:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: error.response?.data?.message || 'Invalid username or password. Please try again.',
+      });
     }
-};
-
-
+  };
 
   const handleRegister = async () => {
     try {
@@ -177,7 +180,13 @@ const MasjidAuth = ({ navigation }) => {
             <Inputs placeholder="Username" value={userName} onChangeText={setUserName} />
             <Inputs placeholder="password" value={password} onChangeText={setPassword} secureTextEntry />
           </View>
-          <Button title="Sign in here" onPress={handleLogin} />
+
+          {isLoading ? (
+            <ActivityIndicator size="large" color={colors.white} />  // Show the loading indicator
+          ) : (
+            <Button title="Sign in here" onPress={handleLogin} />
+          )}
+
           <TouchableOpacity onPress={handleForgotPassword}>
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
           </TouchableOpacity>
