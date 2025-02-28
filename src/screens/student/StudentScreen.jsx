@@ -34,9 +34,9 @@ const sections = [
     route: 'stdhomework'
   },
   {
-    icon: icons.Quotes,
-    label: { en: 'Quotes', other: 'اقتباسات' },
-    route: 'quote'
+    icon: icons.Result,
+    label: { en: 'Result', other: 'اقتباسات' },
+    route: 'type'
   }
 ];
 

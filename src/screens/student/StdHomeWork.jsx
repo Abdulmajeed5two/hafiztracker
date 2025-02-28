@@ -31,6 +31,10 @@ const StdHomeWork = ({ navigation }) => {
         getStdHomework();
     }, []);
 
+    const handleViewDetails = (homework) => {
+        navigation.navigate('homeworkdetails', { homework });
+    };
+
     return (
         <View style={styles.container}>
             <Appbar
@@ -52,11 +56,11 @@ const StdHomeWork = ({ navigation }) => {
                                 {new Date(homework.createdAt).toLocaleDateString()}
                             </Text>
                             <Text style={styles.rowText}>
-                                {homework.suratStartName} - {homework.suratEndName}
+                                {homework.suratStartName}
                             </Text>
                             <TouchableOpacity
                                 style={styles.rowButton}
-                                onPress={() => console.log('Homework Details:', homework)}
+                                onPress={() => handleViewDetails(homework)}
                             >
                                 <Text style={styles.rowText}>View</Text>
                             </TouchableOpacity>

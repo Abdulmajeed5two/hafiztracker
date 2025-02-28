@@ -18,9 +18,9 @@ const sections = [
     route: 'surat'
   },
   {
-    icon: icons.Logout,
-    label: { en: 'Logout', other: 'لاگ آؤٹ' },
-    route: 'role'
+    icon: icons.Quotes,
+    label: { en: 'Quote', other: 'لاگ آؤٹ' },
+    route: 'quote'
   }
 ];
 

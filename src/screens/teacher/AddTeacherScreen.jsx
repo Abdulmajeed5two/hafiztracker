@@ -1,5 +1,5 @@
-import { Image, StyleSheet, Text, View, Alert, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import { Image, StyleSheet, Text, View, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import Inputs from '../../constant/Inputs';
 import { colors } from '../../constant/Colors';
 import Button from '../../constant/Buttons';
@@ -8,9 +8,7 @@ import CustomDropdown from '../../components/CustomDropdown';
 import axiosInstance from '../../services/axiosInterceptor';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DocumentPicker } from 'react-native-document-picker';
-import { launchImageLibrary } from 'react-native-image-picker';
-
+import DocumentPicker from 'react-native-document-picker';
 
 const AddTeacherScreen = ({ navigation }) => {
   const [formData, setFormData] = useState({
@@ -27,10 +25,13 @@ const AddTeacherScreen = ({ navigation }) => {
     cnic: '',
     refernceName: '',
     referencePhone: '',
-    masjidId: '36',
-    ProfileImage: '',
-    Attachment: '',
+    masjidId: '',
+    ProfileImage: null,
+    Attachment: null,
   });
+
+  const [profileImageUri, setProfileImageUri] = useState(null);
+  const [attachmentName, setAttachmentName] = useState(null);
 
   const genderOptions = [
     { label: 'Male', value: 'male' },
@@ -38,13 +39,73 @@ const AddTeacherScreen = ({ navigation }) => {
     { label: 'Other', value: 'other' },
   ];
 
+  useEffect(() => {
+    const getMasjidId = async () => {
+      try {
+        const masjidId = await AsyncStorage.getItem('masjidId');
+        if (masjidId) {
+          setFormData((prev) => ({ ...prev, masjidId }));
+        }
+      } catch (error) {
+        console.error('Error fetching masjidId:', error);
+      }
+    };
+    getMasjidId();
+  }, []);
+
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleProfileImage = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.images],
+      });
+      
+      setProfileImageUri(res[0].uri);
+      setFormData((prev) => ({ ...prev, ProfileImage: res[0] }));
+      
+      Toast.show({
+        type: 'success',
+        text1: 'Profile Image Selected',
+        text2: 'Profile image has been selected successfully!',
+      });
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User canceled profile image picker');
+      } else {
+        console.error('Profile image picker error:', err);
+      }
+    }
+  };
+
+  const handleAttachment = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [DocumentPicker.types.pdf, DocumentPicker.types.plainText, DocumentPicker.types.images],
+      });
+      
+      setAttachmentName(res[0].name);
+      setFormData((prev) => ({ ...prev, Attachment: res[0] }));
+      
+      Toast.show({
+        type: 'success',
+        text1: 'Attachment Selected',
+        text2: 'Attachment has been selected successfully!',
+      });
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User canceled attachment picker');
+      } else {
+        console.error('Attachment picker error:', err);
+      }
+    }
+  };
+
   const RegisterTeacher = async () => {
-    if (!formData.userName || !formData.teacherName || !formData.email || !formData.password) {
-      Alert.alert('Error', 'Please fill all required fields.');
+    if (!formData.userName || !formData.teacherName || !formData.email || !formData.password || !formData.masjidId) {
+      Alert.alert('Error', 'Please fill all required fields including Masjid ID.');
       return;
     }
 
@@ -55,13 +116,37 @@ const AddTeacherScreen = ({ navigation }) => {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formData, {
+      const formDataToSend = new FormData();
+      
+      Object.keys(formData).forEach(key => {
+        if (key !== 'ProfileImage' && key !== 'Attachment') {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      if (formData.ProfileImage) {
+        formDataToSend.append('ProfileImage', {
+          uri: formData.ProfileImage.uri,
+          type: formData.ProfileImage.type,
+          name: formData.ProfileImage.name,
+        });
+      }
+
+      if (formData.Attachment) {
+        formDataToSend.append('Attachment', {
+          uri: formData.Attachment.uri,
+          type: formData.Attachment.type,
+          name: formData.Attachment.name,
+        });
+      }
+
+      const response = await axiosInstance.post('/Teacher/RegisterTeacher', formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
       });
-      console.log('Success:', response.data);
-
+      
       Toast.show({
         type: 'success',
         text1: 'Registration Successful',
@@ -74,57 +159,16 @@ const AddTeacherScreen = ({ navigation }) => {
       Alert.alert('Error', 'Failed to register teacher.');
     }
   };
- 
-
- 
-  const handleAttachmentSelection = async () => {
-    try {
-      const res = await DocumentPicker.pick({
-        type: [DocumentPicker.types.images, DocumentPicker.types.pdf], // Customize file types as needed
-      });
-      // Store the selected file path or URI
-      setFormData((prev) => ({
-        ...prev,
-        Attachment: res.uri, // You can store other data like res.name if needed
-      }));
-      console.log('Selected file:', res);
-    } catch (err) {
-      if (DocumentPicker.isCancel(err)) {
-        console.log('User canceled the picker');
-      } else {
-        console.error('DocumentPicker error:', err);
-      }
-    }
-  };
-  const handleProfileImageSelection = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 1,
-      },
-      (response) => {
-        if (response.didCancel) {
-          console.log('User cancelled image picker');
-        } else if (response.errorCode) {
-          console.error('Image Picker Error:', response.errorMessage);
-        } else {
-          const source = { uri: response.assets[0].uri };
-          setFormData((prev) => ({
-            ...prev,
-            ProfileImage: source.uri, // Update Profile Image URI in state
-          }));
-          console.log('Selected Image:', response.assets[0].uri);
-        }
-      }
-    );
-  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={styles.iconContainer}>
-          <Image source={icons.Teacher} style={styles.logo} />
-        </View>
+        <TouchableOpacity style={styles.iconContainer} onPress={handleProfileImage}>
+          <Image 
+            source={profileImageUri ? { uri: profileImageUri } : icons.Teacher} 
+            style={styles.logo} 
+          />
+        </TouchableOpacity>
         <Text style={styles.title}>Teacher Registration</Text>
       </View>
 
@@ -202,8 +246,11 @@ const AddTeacherScreen = ({ navigation }) => {
             value={formData.referencePhone}
             onChangeText={(text) => handleInputChange('referencePhone', text)}
           />
-          {/* Button to trigger attachment selection */}
-          <Button title="Select Attachment" onPress={handleAttachmentSelection} />
+          <TouchableOpacity style={styles.attachmentButton} onPress={handleAttachment}>
+            <Text style={styles.attachmentText}>
+              {attachmentName || 'Upload Attachment (PDF/Image)'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
@@ -271,5 +318,16 @@ const styles = StyleSheet.create({
     bottom: 20,
     width: '100%',
     paddingHorizontal: 20,
+  },
+  attachmentButton: {
+    backgroundColor: colors.white,
+    padding: 15,
+    borderRadius: 5,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  attachmentText: {
+    color: colors.PrimaryGreen,
+    fontSize: 16,
   },
 });

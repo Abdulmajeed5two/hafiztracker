@@ -27,6 +27,7 @@ const sections = [
     label: { en: 'Assigned Students', other: 'تفویض شدہ طلباء' },
     route: 'tstd'
   },
+ 
 ];
 
 const TeacherMoreOptions = () => {

@@ -45,6 +45,11 @@ import StudentSelection from '../screens/homework/StudentSelection';
 import StdHomeWork from '../screens/student/StdHomeWork';
 import ActivityStd from '../screens/teacher/ActivityStd';
 import CheckActStudents from '../screens/teacher/CheckActStudents';
+import ResultHomework from '../screens/homework/ResultHomework';
+import Test from '../test/Test';
+import SelectType from '../screens/homework/SelectType';
+import HomeWorkByType from '../screens/homework/HomeWorkByType';
+import HomeworkDetails from '../screens/homeworkdetails/HomeworkDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -98,6 +103,10 @@ const StackNavigator = () => {
         <Stack.Screen name='stdhomework' component={StdHomeWork}/>
         <Stack.Screen name='actuser' component={ActivityStd}/>
         <Stack.Screen name='checkactstd' component={CheckActStudents}/>
+        <Stack.Screen name='result' component={HomeWorkByType}/>
+        <Stack.Screen name='type' component={SelectType}/>
+        <Stack.Screen name='homeworkdetails' component={HomeworkDetails}/>
+        <Stack.Screen name='test' component={Test}/>
     </Stack.Navigator>
   )
 }

@@ -85,7 +85,6 @@ const StudentAuth = ({ navigation }) => {
         return;
       }
 
-      // Store token & username
       await AsyncStorage.setItem('token', token);
       await AsyncStorage.setItem('userName', result?.userName || '');
       await AsyncStorage.setItem('studentId', StdId.toString());

@@ -18,8 +18,8 @@ const sections = [
     route: 'surat'
   },
   {
-    icon: icons.Logout,
-    label: { en: 'Logout', other: 'لاگ آؤٹ' },
+    icon: icons.Quran,
+    label: { en: 'Quotes', other: 'لاگ آؤٹ' },
     route: 'role'
   }
 ];
