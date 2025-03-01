@@ -32,11 +32,11 @@ const sections = [
     label: { en: 'Assigned Students', other: 'تفویض شدہ طلباء' },
     route: 'assign'
   },
-  {
-    icon: icons.Assign,
-    label: { en: 'test', other: 'تفویض شدہ طلباء' },
-    route: 'test'
-  },
+  // {
+  //   icon: icons.Assign,
+  //   label: { en: 'test', other: 'تفویض شدہ طلباء' },
+  //   route: 'test'
+  // },
 ];
 
 const MasjidMoreOptions = () => {

@@ -40,29 +40,56 @@ const AddStudentForm = ({ navigation }) => {
 
     const RegisterStudents = async () => {
         if (!formData.studentName || !formData.userName || !formData.email || !formData.password || !formData.parentId) {
-          Toast.show({
-            type: 'error',
-            text1: 'Error',
-            text2: 'Please fill all required fields.',
-          })  
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Please fill all required fields.',
+            });
             return;
         }
-
+    
         if (formData.password !== formData.confirmPassword) {
             Toast.show({ type: 'error', text1: 'Error', text2: 'Password and Confirm Password do not match.' });
             return;
         }
-
+    
+        const parentId = parseInt(formData.parentId, 10);
+        if (isNaN(parentId)) {
+            Toast.show({ type: 'error', text1: 'Error', text2: 'Invalid Parent ID. Please select a valid parent.' });
+            return;
+        }
+    
         setLoading(true);
         try {
             const token = await AsyncStorage.getItem('token');
-            const response = await axiosInstance.post('/Student/RegisterStudent', formData, {
+    
+            const payload = {
+                ...formData,
+                parentId: parentId,
+                Student: {
+                    studentName: formData.studentName,
+                    userName: formData.userName,
+                    email: formData.email,
+                    password: formData.password,
+                    phone: formData.phone,
+                    whatsapp: formData.whatsapp,
+                    emergencyContact: formData.emergencyContact,
+                    area: formData.area,
+                    address: formData.address,
+                    masjidId: formData.masjidId,
+                }
+            };
+    
+            console.log('Payload:', payload);
+    
+            const response = await axiosInstance.post('/Student/RegisterStudent', payload, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            
+    
             Toast.show({ type: 'success', text1: 'Registration Successful', text2: 'Student registered successfully!' });
             navigation.goBack();
         } catch (error) {
+            console.error('Registration Error:', error.response?.data); // Log the error response for debugging
             Toast.show({ type: 'error', text1: 'Error', text2: 'Failed to register student. Please try again.' });
         } finally {
             setLoading(false);
@@ -70,6 +97,7 @@ const AddStudentForm = ({ navigation }) => {
     };
 
     const handleInputChange = (field, value) => {
+        console.log(`Field: ${field}, Value: ${value}`); // Log the field and value
         setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -85,11 +113,11 @@ const AddStudentForm = ({ navigation }) => {
             <KeyboardAvoidingView style={{ flex: 1, width: '100%' }} behavior='padding'>
                 <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
                     <View style={styles.inputContainer}>
-                        <CustomSelectList
-                            data={parentsData.map(parent => ({ key: parent.id, value: parent.fatherName }))}
-                            selectedValue={formData.parentId || 'Select Parent'}
-                            onSelect={(val) => handleInputChange('parentId', val)}
-                        />
+                    <CustomSelectList
+    data={parentsData.map(parent => ({ key: parent.id.toString(), value: parent.id }))}
+    selectedValue={formData.parentId || 'Select Parent'}
+    onSelect={(val) => handleInputChange('parentId', val)}
+/>
                         <Inputs placeholder='Student Name' value={formData.studentName} onChangeText={(text) => handleInputChange('studentName', text)} />
                         <Inputs placeholder='Username' value={formData.userName} onChangeText={(text) => handleInputChange('userName', text)} />
                         <Inputs placeholder='Email' value={formData.email} onChangeText={(text) => handleInputChange('email', text)} />

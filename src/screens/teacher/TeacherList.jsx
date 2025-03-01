@@ -11,10 +11,18 @@ const TeacherList = ({ navigation }) => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTeacher, setSelectedTeacher] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  
 
   const openModal = (teacher) => {
     setSelectedTeacher(teacher);
     setModalVisible(true);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchTeacheres(1) 
+      .finally(() => setRefreshing(false));
   };
 
   return (
@@ -49,6 +57,8 @@ const TeacherList = ({ navigation }) => {
             </TouchableOpacity>
           )}
           contentContainerStyle={styles.listContainer}
+          refreshing={refreshing}  
+          onRefresh={handleRefresh}
         />
       )}
 

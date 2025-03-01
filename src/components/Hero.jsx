@@ -3,7 +3,7 @@ import React from 'react';
 import { colors } from '../constant/Colors';
 import icons from '../constant/Icons';
 
-const Hero = ({ menuIcon, title, shareIcon, userIcon, userName, userLocation, onMenuPress }) => {
+const Hero = ({ menuIcon, title, shareIcon, userIcon, userName, Teachers,Students, onMenuPress }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -19,7 +19,10 @@ const Hero = ({ menuIcon, title, shareIcon, userIcon, userName, userLocation, on
           <Image source={userIcon} style={styles.iconImage} />
         </View>
         <Text style={styles.txt}>{userName}</Text>
-        <Text style={styles.txt}>{userLocation}</Text>
+        <View style={styles.counts}>
+        <Text style={styles.txt}>{Teachers} </Text>
+        <Text style={styles.txt}>{Students} </Text>
+        </View>
       </View>
     </View>
   );
@@ -78,4 +81,9 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     marginTop: 16,
   },
+  counts:{
+    fontSize: 16,
+    flexDirection:'row',
+    gap:32,
+  }
 });

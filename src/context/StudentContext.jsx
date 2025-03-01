@@ -13,11 +13,15 @@ export const StudentProvider = ({ children }) => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
+      const masjidId = await AsyncStorage.getItem('id');
       if (!token) return;
 
       const response = await axiosInstance.post(
         '/Student/GetAllStudents',
-        { pageNumber: page, pageSize: 10 },
+        { 
+          pageNumber: page, pageSize: 10,
+          masjidId : masjidId
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

@@ -7,14 +7,20 @@ import { colors } from '../../constant/Colors';
 import { ParentsContext } from '../../context/ParentsContext';
 
 const ParentsList = ({ navigation }) => {
-  const { parentsData, fetchParentses, pageNumber, loading } = useContext(ParentsContext);
+  const { parentsData, pageNumber, loading, fetchParentses } = useContext(ParentsContext);
   const [selectedParent, setSelectedParent] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); 
 
-  // Open Modal and Set Selected Parent
   const openModal = (parent) => {
     setSelectedParent(parent);
     setModalVisible(true);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true); // Set refreshing to true
+    await fetchParentses(pageNumber); // Trigger the fetch to reload data
+    setRefreshing(false); // Set refreshing to false after data is loaded
   };
 
   return (
@@ -46,9 +52,11 @@ const ParentsList = ({ navigation }) => {
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => openModal(item)} style={styles.tableRow}>
               <Text style={styles.rowText}>{item.fatherName}</Text>
-              <Text style={styles.rowText}>{item.fatherCNIC}</Text>
+              <Text style={styles.rowText}>{item.contact}</Text>
             </TouchableOpacity>
           )}
+          refreshing={refreshing} // Pass the refreshing state to FlatList
+          onRefresh={onRefresh}   // Implement the onRefresh callback
         />
       )}
 
@@ -70,61 +78,60 @@ const ParentsList = ({ navigation }) => {
 
       {/* MODAL FOR PARENT DETAILS */}
       <Modal
-  animationType="slide"
-  transparent={true}
-  visible={modalVisible}
-  onRequestClose={() => setModalVisible(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>Parent Details</Text>
-      {selectedParent && (
-        <View style={styles.tableContainer}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>User Name:</Text>
-            <Text style={styles.tableData}>{selectedParent.userName}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Email:</Text>
-            <Text style={styles.tableData}>{selectedParent.email}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Father Name:</Text>
-            <Text style={styles.tableData}>{selectedParent.fatherName}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Mother Name:</Text>
-            <Text style={styles.tableData}>{selectedParent.motherName}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Father CNIC:</Text>
-            <Text style={styles.tableData}>{selectedParent.fatherCNIC}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Mother CNIC:</Text>
-            <Text style={styles.tableData}>{selectedParent.motherCNIC}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Contact:</Text>
-            <Text style={styles.tableData}>{selectedParent.contact}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Address:</Text>
-            <Text style={styles.tableData}>{selectedParent.address}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Description:</Text>
-            <Text style={styles.tableData}>{selectedParent.description}</Text>
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Parent Details</Text>
+            {selectedParent && (
+              <View style={styles.tableContainer}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>User Name:</Text>
+                  <Text style={styles.tableData}>{selectedParent.userName}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Email:</Text>
+                  <Text style={styles.tableData}>{selectedParent.email}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Father Name:</Text>
+                  <Text style={styles.tableData}>{selectedParent.fatherName}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Mother Name:</Text>
+                  <Text style={styles.tableData}>{selectedParent.motherName}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Father CNIC:</Text>
+                  <Text style={styles.tableData}>{selectedParent.fatherCNIC}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Mother CNIC:</Text>
+                  <Text style={styles.tableData}>{selectedParent.motherCNIC}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Contact:</Text>
+                  <Text style={styles.tableData}>{selectedParent.contact}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Address:</Text>
+                  <Text style={styles.tableData}>{selectedParent.address}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Description:</Text>
+                  <Text style={styles.tableData}>{selectedParent.description}</Text>
+                </View>
+              </View>
+            )}
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      )}
-      <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>Close</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
-
+      </Modal>
     </View>
   );
 };

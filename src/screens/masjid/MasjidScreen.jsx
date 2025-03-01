@@ -1,10 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import Hero from '../../components/Hero';
 import ContainerSection from '../../components/ContainerSection';
 import icons from '../../constant/Icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Drawer from '../../routes/Drawer';
+import axiosInstance from '../../services/axiosInterceptor';
 
 const sections = [
   {
@@ -37,13 +38,14 @@ const sections = [
     label: { en: 'Parents', other: 'والدین' },
     route: 'parentslist',
   },
-  
-  
 ];
+
 
 const MasjidScreen = ({ navigation }) => {
   const [userName, setUserName] = useState('');
   const drawerRef = useRef();
+  const [teacherCount, setTeacherCount] = useState(0);
+  const [studentCount, setStudentCount] = useState(0);
 
   const getUsernameFromStorage = async () => {
     try {
@@ -58,8 +60,50 @@ const MasjidScreen = ({ navigation }) => {
     }
   };
 
+  const getCountsOfTeacher = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const MasjidId = await AsyncStorage.getItem('id');
+      if (!token || !MasjidId) {
+        console.error('Token or MasjidId is missing');
+        return;
+      }
+      const response = await axiosInstance.get(
+        `Teacher/GetCountOfTeacherByMasjidId?MasjidId=${MasjidId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setTeacherCount(response.data.result);
+    } catch (error) {
+      console.error('Error getting teacher count:', error.response?.status, error.response?.data);
+    }
+  };
+
+  const getCountsOfStudents = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const MasjidId = await AsyncStorage.getItem('id');
+      if (!token || !MasjidId) {
+        console.error('Token or MasjidId is missing');
+        return;
+      }
+      const response = await axiosInstance.get(
+        `Student/GetStudentCount?Id=${MasjidId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setStudentCount(response.data);
+    } catch (error) {
+      console.error('Error getting teacher count:', error.response?.status, error.response?.data);
+    }
+  };
+
   useEffect(() => {
     getUsernameFromStorage();
+    getCountsOfTeacher();
+    getCountsOfStudents();
   }, []);
 
   const handleMenuPress = () => {
@@ -70,10 +114,7 @@ const MasjidScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Drawer Overlay */}
       <Drawer ref={drawerRef} />
-
-      {/* Main Content */}
       <View style={styles.content}>
         <Hero
           menuIcon={icons.Menu}
@@ -82,6 +123,8 @@ const MasjidScreen = ({ navigation }) => {
           userIcon={icons.MasjidIcon}
           userName={userName}
           onMenuPress={handleMenuPress}
+          Teachers={`Teachers: ${teacherCount}`}
+          Students={`Students : ${studentCount}`}
         />
         <ContainerSection sections={sections} />
       </View>
@@ -97,6 +140,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    zIndex: 1, // Main content stays below the drawer
+    zIndex: 1,
   },
 });

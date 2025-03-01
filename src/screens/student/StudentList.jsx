@@ -5,16 +5,38 @@ import icons from '../../constant/Icons';
 import { width } from '../../constant/Size';
 import { colors } from '../../constant/Colors';
 import { StudentContext } from '../../context/StudentContext';
+import axiosInstance from '../../services/axiosInterceptor';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StudentList = ({ navigation }) => {
   const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // Add state for refreshing
 
-  // Open Modal and Set Selected Student
   const openModal = (student) => {
     setSelectedStudent(student);
     setModalVisible(true);
+  };
+
+  const handleDelete = async (student) => {
+    try {
+        const token = await AsyncStorage.getItem('token');
+        const response = await axiosInstance.put(`Student/Delete?Id=${student.id}`,{
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
+        console.log('response .................',response)
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchStudentes(1) 
+      .finally(() => setRefreshing(false)); 
   };
 
   return (
@@ -48,6 +70,8 @@ const StudentList = ({ navigation }) => {
             <Text style={styles.rowText}>{item.phone}</Text>
           </TouchableOpacity>
         )}
+        refreshing={refreshing}  // Add refreshing state to FlatList
+        onRefresh={handleRefresh}  // Trigger refresh logic
       />
 
       <View style={styles.pagination}>
@@ -68,53 +92,55 @@ const StudentList = ({ navigation }) => {
 
       {/* MODAL FOR STUDENT DETAILS */}
       <Modal
-  animationType="slide"
-  transparent={true}
-  visible={modalVisible}
-  onRequestClose={() => setModalVisible(false)}
->
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>Student Details</Text>
-      {selectedStudent && (
-        <View style={styles.tableContainer}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Name:</Text>
-            <Text style={styles.tableData}>{selectedStudent.userName}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Phone:</Text>
-            <Text style={styles.tableData}>{selectedStudent.phone}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Whatsapp:</Text>
-            <Text style={styles.tableData}>{selectedStudent.whatsapp}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Emergency Contact:</Text>
-            <Text style={styles.tableData}>{selectedStudent.emergencyContact}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Email:</Text>
-            <Text style={styles.tableData}>{selectedStudent.email}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Area:</Text>
-            <Text style={styles.tableData}>{selectedStudent.area}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableHeader}>Address:</Text>
-            <Text style={styles.tableData}>{selectedStudent.address}</Text>
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Student Details</Text>
+            {selectedStudent && (
+              <View style={styles.tableContainer}>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Name:</Text>
+                  <Text style={styles.tableData}>{selectedStudent.userName}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Phone:</Text>
+                  <Text style={styles.tableData}>{selectedStudent.phone}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Whatsapp:</Text>
+                  <Text style={styles.tableData}>{selectedStudent.whatsapp}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Emergency Contact:</Text>
+                  <Text style={styles.tableData}>{selectedStudent.emergencyContact}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Email:</Text>
+                  <Text style={styles.tableData}>{selectedStudent.email}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Area:</Text>
+                  <Text style={styles.tableData}>{selectedStudent.area}</Text>
+                </View>
+                <View style={styles.tableRow}>
+                  <Text style={styles.tableHeader}>Address:</Text>
+                  <Text style={styles.tableData}>{selectedStudent.address}</Text>
+                </View>
+              </View>
+            )}
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => handleDelete()} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Delete</Text>
+            </TouchableOpacity> 
           </View>
         </View>
-      )}
-      <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>Close</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
-
+      </Modal>
     </View>
   );
 };

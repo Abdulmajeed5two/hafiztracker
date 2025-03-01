@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     },
     ayatText: {
         fontSize: 20, 
-        fontFamily: 'Scheherazade',
+        fontFamily: 'Al Majeed Quranic',
         textAlign: 'right',
         writingDirection: 'rtl',
         marginBottom: 12, 
