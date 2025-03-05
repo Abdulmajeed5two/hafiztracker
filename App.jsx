@@ -5,18 +5,19 @@ import ContextProvider from './src/context/ContextProvider';
 import StackNavigator from './src/routes/Stack';
 import { colors } from './src/constant/Colors';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { getFcmToken } from './src/services/Firebase';
+import { initializeNotifications } from './src/services/Firebase';
 
 const App = () => {
 
   useEffect(() => {
-    const fetchToken = async () => {
-      const token = await getFcmToken();
-      console.log('FCM Token:', token);
+    let unsubscribe;
+    const setupNotifications = async () => {
+      unsubscribe = await initializeNotifications();
     };
-
-    fetchToken();
+    setupNotifications();
+    return () => unsubscribe && unsubscribe();
   }, []);
+
 
   return (
     <View style={styles.container}>

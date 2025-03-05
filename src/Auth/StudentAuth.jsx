@@ -8,6 +8,7 @@ import axiosInstance from '../services/axiosInterceptor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DeviceInfo from 'react-native-device-info';
 import Toast from 'react-native-toast-message';
+import { getFcmToken } from '../services/Firebase';
 
 
 const StudentAuth = ({ navigation }) => {
@@ -15,6 +16,7 @@ const StudentAuth = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [deviceInfo, setDeviceInfo] = useState({});
+  const [fcmToken, setFcmToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -44,6 +46,13 @@ const StudentAuth = ({ navigation }) => {
       }
     };
 
+     const fetchToken = async () => {
+          const token = await getFcmToken();
+          console.log('FCM Token:', token);
+          setFcmToken(token);
+        };
+    
+    fetchToken();
     fetchDeviceInfo();
   }, []);
 
@@ -62,6 +71,7 @@ const StudentAuth = ({ navigation }) => {
         userName,
         password,
         deviceId,
+        fcmToken,
       });
 
       console.log('Login Response:', response.data);
@@ -75,7 +85,7 @@ const StudentAuth = ({ navigation }) => {
         throw new Error('Token is missing in the response');
       }
 
-      if (status === 1) {
+      if (status === 0) {
         navigation.navigate('verify');
         Toast.show({
           type: 'info',

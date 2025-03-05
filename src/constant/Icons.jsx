@@ -43,6 +43,8 @@ const icons = {
   Assign: require('../assets/icons/assign.png'),
   ActUser: require('../assets/icons/actuser.png'),
   Result: require('../assets/icons/result.png'),
+  Cover: require('../assets/img/cover.jpg'),
+  Page: require('../assets/img/page.jpg'),
 
   //images
   Student: require('../assets/img/std.jpg'),

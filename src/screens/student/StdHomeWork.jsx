@@ -11,7 +11,11 @@ const StdHomeWork = ({ navigation }) => {
         try {
             const token = await AsyncStorage.getItem('token');
             const stdId = await AsyncStorage.getItem('studentId');
-            const response = await axiosInstance.post('HomeWork/GetHomeWork', {
+            const response = await axiosInstance.post('HomeWork/GetHomeWork',
+                {
+                    studentId: stdId
+                }
+                ,{
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -56,7 +60,7 @@ const StdHomeWork = ({ navigation }) => {
                                 {new Date(homework.createdAt).toLocaleDateString()}
                             </Text>
                             <Text style={styles.rowText}>
-                                {homework.suratStartName}
+                                {homework.suratStartName} - {homework.suratEndName}
                             </Text>
                             <TouchableOpacity
                                 style={styles.rowButton}

@@ -14,7 +14,7 @@ const TeacherAuth = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [deviceId, setDeviceId] = useState('');
   const [deviceInfo, setDeviceInfo] = useState({});
-  const [isLoading, setIsLoading] = useState(false);  // Track loading state
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchDeviceInfo = async () => {
@@ -56,7 +56,7 @@ const TeacherAuth = ({ navigation }) => {
       return;
     }
 
-    setIsLoading(true);  // Set loading state to true when login starts
+    setIsLoading(true); 
 
     try {
       const response = await axiosInstance.post('/Teacher/Login', {

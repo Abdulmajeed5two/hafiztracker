@@ -42,7 +42,8 @@ const AddTeacherScreen = ({ navigation }) => {
   useEffect(() => {
     const getMasjidId = async () => {
       try {
-        const masjidId = await AsyncStorage.getItem('masjidId');
+        const masjidId = await AsyncStorage.getItem('id');
+        console.log('skdjsdksdskd',masjidId)
         if (masjidId) {
           setFormData((prev) => ({ ...prev, masjidId }));
         }

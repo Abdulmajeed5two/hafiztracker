@@ -198,14 +198,14 @@ const AddHomeWork = ({ navigation, route }) => {
   const ayatOptions = (Array.isArray(ayats) ? ayats : [])
     .map((ayat) => ({
       key: `${ayat.number}`,
-      value: `${ayat.text}`,
+      value: `${ayat.number}`,
     }))
     .slice(0, startAyatPage * ITEMS_PER_PAGE);
 
   const endAyatOptions = (Array.isArray(ayats) ? ayats : [])
     .map((ayat) => ({
       key: `${ayat.number}`,
-      value: `${ayat.text}`,
+      value: `${ayat.number}`,
     }))
     .slice(0, endAyatPage * ITEMS_PER_PAGE);
 
@@ -297,13 +297,7 @@ const AddHomeWork = ({ navigation, route }) => {
                 maxItems={suratData.length}
               />
 
-              <CustomSelectList
-                data={suratEndOptions}
-                selectedValue={formData.suratEndName || 'Select End Surah'}
-                onSelect={handleSuratEndSelect}
-                onEndReached={() => loadMore('suratEnd')}
-                maxItems={suratData.length}
-              />
+             
 
               <CustomSelectList
                 data={ayatOptions}
@@ -311,6 +305,14 @@ const AddHomeWork = ({ navigation, route }) => {
                 onSelect={(val) => handleInputChange('startAyatNo', val)}
                 onEndReached={() => loadMore('startAyat')}
                 maxItems={ayats.length}
+              />
+
+                <CustomSelectList
+                data={suratEndOptions}
+                selectedValue={formData.suratEndName || 'Select End Surah'}
+                onSelect={handleSuratEndSelect}
+                onEndReached={() => loadMore('suratEnd')}
+                maxItems={suratData.length}
               />
 
               <CustomSelectList

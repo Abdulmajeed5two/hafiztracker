@@ -6,6 +6,7 @@ import icons from '../../constant/Icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Drawer from '../../routes/Drawer';
 import axiosInstance from '../../services/axiosInterceptor';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const sections = [
   {
@@ -40,12 +41,12 @@ const sections = [
   },
 ];
 
-
-const MasjidScreen = ({ navigation }) => {
+const MasjidScreen = () => {
   const [userName, setUserName] = useState('');
   const drawerRef = useRef();
   const [teacherCount, setTeacherCount] = useState(0);
   const [studentCount, setStudentCount] = useState(0);
+  const navigation = useNavigation(); // Use navigation hook
 
   const getUsernameFromStorage = async () => {
     try {
@@ -96,7 +97,7 @@ const MasjidScreen = ({ navigation }) => {
       );
       setStudentCount(response.data);
     } catch (error) {
-      console.error('Error getting teacher count:', error.response?.status, error.response?.data);
+      console.error('Error getting student count:', error.response?.status, error.response?.data);
     }
   };
 
@@ -104,7 +105,21 @@ const MasjidScreen = ({ navigation }) => {
     getUsernameFromStorage();
     getCountsOfTeacher();
     getCountsOfStudents();
-  }, []);
+    
+    // Disable back gesture or back button on this screen
+    navigation.setOptions({
+      gestureEnabled: false, // Disable swipe back gesture
+      headerLeft: null, // Remove the default back button in header
+    });
+
+    return () => {
+      // Optionally reset this if you navigate away from the screen
+      navigation.setOptions({
+        gestureEnabled: true,
+        headerLeft: undefined,
+      });
+    };
+  }, [navigation]);
 
   const handleMenuPress = () => {
     if (drawerRef.current) {
