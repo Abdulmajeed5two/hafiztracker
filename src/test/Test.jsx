@@ -14,7 +14,6 @@ const Test = () => {
 
       setFileUri(res.uri)
       setFileName(res.name)
-
       Alert.alert('File selected:', res.name)
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {

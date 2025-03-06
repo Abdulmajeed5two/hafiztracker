@@ -19,12 +19,12 @@ const sections = [
   },
   {
     icon: icons.Quotes,
-    label: { en: 'Quote', other: 'لاگ آؤٹ' },
+    label: { en: 'Quote', other: ' اقتباس' },
     route: 'quote'
   }
 ];
 
-const MoreOptions = () => {
+const MoreOptions = ({navigation}) => {
   const {language} = useContext(LanguageContext);
   return (
     <View>

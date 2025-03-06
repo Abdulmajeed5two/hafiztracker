@@ -1,11 +1,13 @@
 import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Header from '../components/Header';
 import { colors } from '../constant/Colors';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../services/apiService';
+import { LanguageContext } from '../context/LanguageContext';
 
 const Nameof99Allah = () => {
+  const {language} = useContext(LanguageContext);
   const [AllahNames, setAllahNames] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +39,7 @@ const Nameof99Allah = () => {
     return (
       <View style={styles.container}>
         <Header
-          title="99 Names of Allah"
+          title={language === 'English' ? "99 Names of Allah":'اللہ کے 99 نام'}
           onMenuPress={() => console.log('Menu Pressed')}
           onNotifyPress={() => console.log('Notification Pressed')}
         />
@@ -45,13 +47,10 @@ const Nameof99Allah = () => {
       </View>
     );
   }
-
-  console.log("AllahNames:", AllahNames);
-
   return (
     <View style={styles.container}>
       <Header
-        title="99 Names of Allah"
+        title={language === 'English' ? "99 Names of Allah":'اللہ کے 99 نام'}
         onMenuPress={() => console.log('Menu Pressed')}
         onNotifyPress={() => console.log('Notification Pressed')}
       />
@@ -66,7 +65,7 @@ const Nameof99Allah = () => {
               </View>
             ))
           ) : (
-            <Text style={styles.noDataText}>No names available</Text>
+            <Text style={styles.noDataText}>{language === 'English' ? 'No names available':'کوئی نام دستیاب نہیں'}</Text>
           )}
         </View>
       </ScrollView>

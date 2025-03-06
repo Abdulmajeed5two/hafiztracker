@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import Hero from '../../components/Hero'
 import icons from '../../constant/Icons'
 import ContainerSection from '../../components/ContainerSection'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Drawer from '../../routes/Drawer'
+import { LanguageContext } from '../../context/LanguageContext'
 
 
 const sections = [
@@ -41,6 +42,7 @@ const sections = [
 ];
 
 const StudentScreen = ({navigation}) => {
+  const  {language} = useContext(LanguageContext)
   const [userName, setUserName] = useState('');
   const drawerRef = useRef();
 
@@ -73,7 +75,7 @@ const StudentScreen = ({navigation}) => {
       <View style={styles.header}>
       <Hero
         menuIcon={icons.Menu}
-        title="Home"
+        title={language === 'English' ? "Home":'ہوم اسکرین'}
         shareIcon={icons.Share}
         userIcon={icons.Man}
         userName={userName}

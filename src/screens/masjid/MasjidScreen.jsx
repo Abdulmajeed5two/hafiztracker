@@ -26,12 +26,12 @@ const sections = [
   },
   {
     icon: icons.TeacherList,
-    label: { en: 'Add Teacher', other: 'نوٹیفیکیشن' },
+    label: { en: 'Add Teacher', other: 'ٹیچر کو شامل کریں' },
     route: 'teachlist',
   },
   {
     icon: icons.StdList,
-    label: { en: 'Add Student', other: 'پڑھیں' },
+    label: { en: 'Add Student', other: 'طالب علم شامل کریں' },
     route: 'stdlist',
   },
   {

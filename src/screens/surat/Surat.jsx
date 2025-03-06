@@ -3,10 +3,12 @@ import React, { useContext, useState, useCallback } from 'react';
 import { SuratContext } from '../../context/SuratContext';
 import { colors } from '../../constant/Colors';
 import Appbar from '../../components/Appbar';
+import { LanguageContext } from '../../context/LanguageContext';
 
 const ITEMS_PER_PAGE = 13;
 
 const Surat = ({ navigation }) => {
+  const {language} = useContext(LanguageContext)
   const { suratData, loading } = useContext(SuratContext);
   const [pageNumber, setPageNumber] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
@@ -24,7 +26,6 @@ const Surat = ({ navigation }) => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // Simulate fetching updated data
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
@@ -33,13 +34,13 @@ const Surat = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Appbar
-        title="Surat"
+        title={language === 'English' ? "Surat":'سورت'}
         onMenuPress={() => navigation.goBack()}
-        onNotifyPress={() => console.log('Notification Pressed')}
+        onNotifyPress={() => navigation.navigate('Notification')}
       />
       <View style={styles.fixedHeader}>
-        <Text style={styles.headerText}>Surat Number</Text>
-        <Text style={styles.headerText}>Surat Name</Text>
+        <Text style={styles.headerText}>{language === 'English' ? 'Surat Number':'سورت نمبر'}</Text>
+        <Text style={styles.headerText}>{language === 'English' ? 'Surat Name':'سورت نام'}</Text>
       </View>
       <FlatList
         data={paginatedData}

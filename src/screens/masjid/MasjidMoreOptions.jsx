@@ -18,25 +18,11 @@ const sections = [
     route: 'surat'
   },
   {
-    icon: icons.Quran,
-    label: { en: 'Ayats', other: 'آیات' },
-    route: 'ayat'
-  },
-  // {
-  //   icon: icons.Quotes,
-  //   label: { en: 'Quotes', other: 'اقتباسات' },
-  //   route: 'quote'
-  // },
-  {
     icon: icons.Assign,
     label: { en: 'Assigned Students', other: 'تفویض شدہ طلباء' },
     route: 'assign'
   },
-  // {
-  //   icon: icons.Assign,
-  //   label: { en: 'test', other: 'تفویض شدہ طلباء' },
-  //   route: 'test'
-  // },
+  
 ];
 
 const MasjidMoreOptions = () => {

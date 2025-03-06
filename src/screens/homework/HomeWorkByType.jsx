@@ -1,11 +1,13 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axiosInstance from '../../services/axiosInterceptor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Appbar from '../../components/Appbar';
 import { colors } from '../../constant/Colors';
+import { LanguageContext } from '../../context/LanguageContext';
 
 const HomeWorkByType = ({ navigation, route }) => {
+    const {language} = useContext(LanguageContext);
     const { selectedType } = route.params;
     const [studentId, setStudentId] = useState(null);
     const [homeWorkData, setHomeWorkData] = useState([]);
@@ -42,19 +44,19 @@ const HomeWorkByType = ({ navigation, route }) => {
     const renderHeader = () => (
         <View style={[styles.row, styles.headerRow]}>
             <View style={styles.column}>
-                <Text style={styles.headerText}>Surat Name</Text>
+                <Text style={styles.headerText}>{language === 'English' ? 'Surat Name':'سورت کا نام'}</Text>
             </View>
             <View style={styles.column}>
-                <Text style={styles.headerText}>Suzish</Text>
+                <Text style={styles.headerText}>{language === 'English' ? 'Suzish':'سوزش'}</Text>
             </View>
             <View style={styles.column}>
-                <Text style={styles.headerText}>Atkan</Text>
+                <Text style={styles.headerText}>{language === 'English' ? 'Atkan':'اتکن'}</Text>
             </View>
             <View style={styles.column}>
-                <Text style={styles.headerText}>Galti</Text>
+                <Text style={styles.headerText}>{language === 'English' ? 'Galti':'گلتی'}</Text>
             </View>
             <View style={styles.column}>
-                <Text style={styles.headerText}>Status</Text>
+                <Text style={styles.headerText}>{language === 'English' ? 'Status':'درجہ'}</Text>
             </View>
         </View>
     );
@@ -87,7 +89,7 @@ const HomeWorkByType = ({ navigation, route }) => {
     return (
         <View style={styles.container}>
             <Appbar 
-                title={'Home Work Result'}
+                title={language === 'English' ? 'Home Work Result':'ہوم ورک کا نتیجہ'}
                 onMenuPress={() => navigation.goBack()}
             />
             <FlatList

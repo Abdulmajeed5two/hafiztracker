@@ -26,7 +26,6 @@ export const SuratProvider = ({ children }) => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchSurates();
   }, []);

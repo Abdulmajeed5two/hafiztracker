@@ -78,25 +78,7 @@ const TeacherTabs = () => {
                   marginTop:26
                 }}
               />
-               <Tab.Screen
-        name="More"
-        component={MasjidMoreOptions}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View>
-              <Image
-                source={icons.Apps}
-                style={{
-                width: 30,
-                height: 30,
-                tintColor: focused ? colors.Greenlight : colors.gray,
-                marginTop:26
-                }}
-              />
-            </View>
-          ),
-        }}
-      />
+             
             </View>
           ),
         }}

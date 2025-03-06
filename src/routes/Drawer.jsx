@@ -1,14 +1,16 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, useContext } from 'react';
 import { StyleSheet, Text, View, Animated, TouchableOpacity, Dimensions } from 'react-native';
 import { PanGestureHandler, State } from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { colors } from '../constant/Colors';
+import { LanguageContext } from '../context/LanguageContext';
 
 const { width } = Dimensions.get('window');
 const DRAWER_WIDTH = width * 0.6;
 
 const Drawer = forwardRef((_, ref) => {
+  const {language} = useContext(LanguageContext);
   const translateX = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const navigation = useNavigation();
 
@@ -71,13 +73,13 @@ const Drawer = forwardRef((_, ref) => {
         style={[styles.drawer, { transform: [{ translateX }] }]}
       >
         <View style={styles.drawerContent}>
-          <Text style={styles.header}>Hafiz Menu</Text>
+          <Text style={styles.header}>{language === 'English' ? 'Hafiz Menu':'حافظ مینو'}</Text>
           <View style={styles.btns}>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <Text style={styles.logoutText}>Logout</Text>
+              <Text style={styles.logoutText}>{language === 'English' ? 'Logout':'لاگ آؤٹ'}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={closeDrawer} style={styles.logoutButton}>
-              <Text style={styles.logoutText}>Close</Text>
+              <Text style={styles.logoutText}>{language === 'English' ? 'Close':'بند کرو'}</Text>
             </TouchableOpacity>
           </View>
         </View>

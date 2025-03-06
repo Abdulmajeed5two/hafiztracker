@@ -1,8 +1,7 @@
 import { FlatList, StyleSheet, Text, View, TouchableOpacity, RefreshControl } from 'react-native';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Appbar from '../../components/Appbar';
 import { StudentContext } from '../../context/StudentContext';
-import { colors } from '../../constant/Colors';
 
 const StudentSelection = ({ navigation }) => {
   const { studentData, fetchStudentes, pageNumber, loading } = useContext(StudentContext);

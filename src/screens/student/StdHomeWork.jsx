@@ -1,28 +1,32 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Appbar from '../../components/Appbar';
 import axiosInstance from '../../services/axiosInterceptor';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LanguageContext } from '../../context/LanguageContext';
 
 const StdHomeWork = ({ navigation }) => {
+    const { language } = useContext(LanguageContext);
     const [homeworkData, setHomeworkData] = useState([]);
 
     const getStdHomework = async () => {
         try {
             const token = await AsyncStorage.getItem('token');
             const stdId = await AsyncStorage.getItem('studentId');
-            const response = await axiosInstance.post('HomeWork/GetHomeWork',
+            const response = await axiosInstance.post(
+                'HomeWork/GetHomeWork',
+                { studentId: stdId },
                 {
-                    studentId: stdId
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
                 }
-                ,{
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            const result = Array.isArray(response.data.result.data) ? 
-                response.data.result.data : 
-                response.data.result.data ? [response.data.result.data] : [];
+            );
+            const result = Array.isArray(response.data.result.data)
+                ? response.data.result.data
+                : response.data.result.data
+                ? [response.data.result.data]
+                : [];
             setHomeworkData(result);
             console.log('homeworkdata...', result);
         } catch (error) {
@@ -41,18 +45,31 @@ const StdHomeWork = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Appbar
-                title="Homework"
-                onMenuPress={() => navigation.goBack()}
-                onNotifyPress={() => console.log('Notification Pressed')}
-            />
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.tableHeader}>
-                    <Text style={styles.headerText}>Date</Text>
-                    <Text style={styles.headerText}>Surah</Text>
-                    <Text style={styles.headerText}>Detail</Text>
-                </View>
+            <View style={styles.headerContainer}>
+                <Appbar
+                    title={language === 'English' ? 'Homework' : 'ہوم ورک'}
+                    onMenuPress={() => navigation.goBack()}
+                    onNotifyPress={() => console.log('Notification Pressed')}
+                />
+            </View>
 
+            <View style={styles.tableHeaderContainer}>
+                <View style={styles.tableHeader}>
+                    <Text style={styles.headerText}>
+                        {language === 'English' ? 'Date' : 'تاریخ'}
+                    </Text>
+                    <Text style={styles.headerText}>
+                        {language === 'English' ? 'Surah' : 'سورہ'}
+                    </Text>
+                    <Text style={styles.headerText}>
+                        {language === 'English' ? 'Detail' : 'تفصیل'}
+                    </Text>
+                </View>
+            </View>
+            <ScrollView
+                style={styles.scrollView}
+                contentContainerStyle={styles.scrollContainer}
+            >
                 {homeworkData.length > 0 ? (
                     homeworkData.map((homework) => (
                         <View key={homework.id} style={styles.tableRow}>
@@ -85,8 +102,19 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
-    scrollContainer: {
-        padding: 16,
+    headerContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 2,
+    },
+    tableHeaderContainer: {
+        position: 'absolute',
+        top: 60,
+        left: 0,
+        right: 0,
+        zIndex: 1,
     },
     tableHeader: {
         flexDirection: 'row',
@@ -103,6 +131,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         flex: 1,
         textAlign: 'center',
+    },
+    scrollView: {
+        flex: 1,
+        marginTop: 100, 
+    },
+    scrollContainer: {
+        paddingHorizontal: 16,
+        paddingBottom: 16,
     },
     tableRow: {
         flexDirection: 'row',

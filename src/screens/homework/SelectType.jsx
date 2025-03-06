@@ -1,9 +1,11 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import React, { useContext } from 'react';
 import { colors } from '../../constant/Colors';
 import Appbar from '../../components/Appbar';
+import { LanguageContext } from '../../context/LanguageContext';
 
 const SelectType = ({ navigation }) => {
+  const {language} = useContext(LanguageContext);
   const handleSelectType = (type) => {
     navigation.navigate('result', { selectedType: type });
   };
@@ -11,7 +13,7 @@ const SelectType = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Appbar title={"Select Type"} />
+      <Appbar title={language === 'English' ? "Select Type":'قسم منتخب کریں'} />
       <View style={styles.typeView}>
 
         <TouchableOpacity 
@@ -19,7 +21,7 @@ const SelectType = ({ navigation }) => {
           onPress={() => handleSelectType('Sabaq')}
         >
           <Text style={styles.text}>
-            Sabaq
+            {language === 'English' ? 'Sabaq':'صباق'}
           </Text>
         </TouchableOpacity>
 
@@ -28,16 +30,16 @@ const SelectType = ({ navigation }) => {
           onPress={() => handleSelectType('Manzil')}
         >
           <Text style={styles.text}>
-            Manzil
+            {language === 'English' ? 'Manzil':'منزل'}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.btns} 
-          onPress={() => handleSelectType('Galati')}
+          onPress={() => handleSelectType('Sabqi')}
         >
           <Text style={styles.text}>
-            Galati
+            {language === 'English' ? 'Sabqi':'سبکی'}
           </Text>
         </TouchableOpacity>
       </View>

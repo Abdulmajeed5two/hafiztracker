@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import DatePicker from 'react-native-date-picker';
 import { colors } from '../../constant/Colors';
 import Button from '../../constant/Buttons';
@@ -18,10 +18,12 @@ import axiosInstance from '../../services/axiosInterceptor';
 import Toast from 'react-native-toast-message';
 import CustomSelectList from '../../components/SelectList';
 import { SuratContext } from '../../context/SuratContext';
+import { LanguageContext } from '../../context/LanguageContext';
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 30;
 
 const AddHomeWork = ({ navigation, route }) => {
+  const { language } = useContext(LanguageContext);
   const { student } = route.params || {};
   const { suratData, loading } = useContext(SuratContext);
 
@@ -29,12 +31,9 @@ const AddHomeWork = ({ navigation, route }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [ayats, setAyats] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [typePage, setTypePage] = useState(1);
-  const [suratStartPage, setSuratStartPage] = useState(1);
-  const [suratEndPage, setSuratEndPage] = useState(1);
-  const [startAyatPage, setStartAyatPage] = useState(1);
-  const [endAyatPage, setEndAyatPage] = useState(1);
+  const [page, setPage] = useState(1);
+  const [displayedSuratData, setDisplayedSuratData] = useState([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const [formData, setFormData] = useState({
     suratStartName: '',
@@ -48,6 +47,42 @@ const AddHomeWork = ({ navigation, route }) => {
     type: '',
     masjidId: '',
   });
+
+  useEffect(() => {
+    if (suratData && suratData.length > 0) {
+      loadMoreItems();
+    }
+  }, [suratData]);
+
+  const loadMoreItems = useCallback(() => {
+    if (!suratData || loading) return;
+
+    setIsLoadingMore(true);
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = page * ITEMS_PER_PAGE;
+    const newItems = suratData.slice(0, endIndex);
+
+    setDisplayedSuratData(newItems);
+    setIsLoadingMore(false);
+  }, [page, suratData, loading]);
+
+  const handleScroll = ({ nativeEvent }) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const paddingToBottom = 20;
+
+    if (
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom
+    ) {
+      if (!isLoadingMore && displayedSuratData.length < suratData.length) {
+        setPage(prev => prev + 1);
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadMoreItems();
+  }, [page, loadMoreItems]);
 
   useEffect(() => {
     if (!student || !student.id) {
@@ -122,7 +157,6 @@ const AddHomeWork = ({ navigation, route }) => {
       const response = await axiosInstance.post('/HomeWork/AddHomeWork', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (response.status === 200 || response.status === 201) {
         Toast.show({
           type: 'success',
@@ -179,67 +213,33 @@ const AddHomeWork = ({ navigation, route }) => {
     { key: '1', value: 'Sabaq' },
     { key: '2', value: 'Manzil' },
     { key: '3', value: 'Sabqi' },
-  ].slice(0, typePage * ITEMS_PER_PAGE);
+  ];
 
-  const suratOptions = suratData
-    .map((surat) => ({
-      key: surat.suratName,
-      value: surat.suratName,
-    }))
-    .slice(0, suratStartPage * ITEMS_PER_PAGE);
+  const suratOptions = displayedSuratData.map((surat) => ({
+    key: surat.suratName,
+    value: surat.suratName,
+  }));
 
-  const suratEndOptions = suratData
-    .map((surat) => ({
-      key: surat.suratName,
-      value: surat.suratName,
-    }))
-    .slice(0, suratEndPage * ITEMS_PER_PAGE);
+  const suratEndOptions = displayedSuratData.map((surat) => ({
+    key: surat.suratName,
+    value: surat.suratName,
+  }));
 
-  const ayatOptions = (Array.isArray(ayats) ? ayats : [])
-    .map((ayat) => ({
-      key: `${ayat.number}`,
-      value: `${ayat.number}`,
-    }))
-    .slice(0, startAyatPage * ITEMS_PER_PAGE);
+  const ayatOptions = (Array.isArray(ayats) ? ayats : []).map((ayat) => ({
+    key: `${ayat.number}`,
+    value: `${ayat.number}`,
+  }));
 
-  const endAyatOptions = (Array.isArray(ayats) ? ayats : [])
-    .map((ayat) => ({
-      key: `${ayat.number}`,
-      value: `${ayat.number}`,
-    }))
-    .slice(0, endAyatPage * ITEMS_PER_PAGE);
+  const endAyatOptions = (Array.isArray(ayats) ? ayats : []).map((ayat) => ({
+    key: `${ayat.number}`,
+    value: `${ayat.number}`,
+  }));
 
-  const loadMore = (dropdownType) => {
-    switch (dropdownType) {
-      case 'type':
-        if (typePage * ITEMS_PER_PAGE < 3) setTypePage((prev) => prev + 1);
-        break;
-      case 'suratStart':
-        if (suratStartPage * ITEMS_PER_PAGE < suratData.length)
-          setSuratStartPage((prev) => prev + 1);
-        break;
-      case 'suratEnd':
-        if (suratEndPage * ITEMS_PER_PAGE < suratData.length)
-          setSuratEndPage((prev) => prev + 1);
-        break;
-      case 'startAyat':
-        if (startAyatPage * ITEMS_PER_PAGE < ayats.length)
-          setStartAyatPage((prev) => prev + 1);
-        break;
-      case 'endAyat':
-        if (endAyatPage * ITEMS_PER_PAGE < ayats.length)
-          setEndAyatPage((prev) => prev + 1);
-        break;
-      default:
-        break;
-    }
-  };
-
-  if (loading) {
+  if (loading && page === 1) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={colors.white} />
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>{language === 'English' ? 'Loading...' : 'لوڈ ہو رہا ہے...'}</Text>
       </View>
     );
   }
@@ -250,17 +250,20 @@ const AddHomeWork = ({ navigation, route }) => {
         <View style={styles.iconContainer}>
           <Image source={icons.MasjidIcon} style={styles.logo} />
         </View>
-        <Text style={styles.title}>Assign Home Work</Text>
+        <Text style={styles.title}>{language === 'English' ? 'Assign Home Work' : 'ہوم ورک تفویض کریں'}</Text>
       </View>
 
-      <ScrollView style={styles.formContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.formContainer} 
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      >
         <View style={styles.inputContainer}>
           <CustomSelectList
             data={typeOptions}
-            selectedValue={formData.type || 'Select Type'}
+            selectedValue={formData.type || language === 'English' ? 'Select Type' : 'قسم منتخب کریں'}
             onSelect={(val) => handleInputChange('type', val)}
-            onEndReached={() => loadMore('type')}
-            maxItems={typeOptions.length}
           />
 
           {formData.type && (
@@ -293,43 +296,42 @@ const AddHomeWork = ({ navigation, route }) => {
                 data={suratOptions}
                 selectedValue={formData.suratStartName || 'Select Start Surah'}
                 onSelect={handleSuratStartSelect}
-                onEndReached={() => loadMore('suratStart')}
-                maxItems={suratData.length}
               />
-
-             
 
               <CustomSelectList
                 data={ayatOptions}
                 selectedValue={formData.startAyatNo || 'Select Start Ayah'}
                 onSelect={(val) => handleInputChange('startAyatNo', val)}
-                onEndReached={() => loadMore('startAyat')}
-                maxItems={ayats.length}
               />
 
-                <CustomSelectList
+              <CustomSelectList
                 data={suratEndOptions}
                 selectedValue={formData.suratEndName || 'Select End Surah'}
                 onSelect={handleSuratEndSelect}
-                onEndReached={() => loadMore('suratEnd')}
-                maxItems={suratData.length}
               />
 
               <CustomSelectList
                 data={endAyatOptions}
-                selectedValue={formData.endAyatNo || 'Select End Ayah'}
+                selectedValue={formData.endAyatNo || language === 'English' ? 'Select End Ayah' : 'آخر آیت کو منتخب کریں'}
                 onSelect={(val) => handleInputChange('endAyatNo', val)}
-                onEndReached={() => loadMore('endAyat')}
-                maxItems={ayats.length}
               />
             </>
           )}
         </View>
+
+        {isLoadingMore && (
+          <View style={styles.loadingMoreContainer}>
+            <ActivityIndicator size="small" color={colors.white} />
+            <Text style={styles.loadingMoreText}>
+              {language === 'English' ? 'Loading more...' : 'مزید لوڈ ہو رہا ہے...'}
+            </Text>
+          </View>
+        )}
       </ScrollView>
 
       <View style={styles.buttonContainer}>
         <Button
-          title={isSubmitting ? '' : 'Assign Home Work'}
+          title={isSubmitting ? '' : language === 'English' ? 'Assign Home Work' : 'ہوم ورک تفویض کریں'}
           onPress={AssignHomeWork}
           disabled={isSubmitting}
           style={isSubmitting ? styles.disabledButton : null}
@@ -419,6 +421,17 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: colors.white,
+  },
+  loadingMoreContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
+  },
+  loadingMoreText: {
+    marginLeft: 10,
+    color: colors.white,
+    fontSize: 14,
   },
 });
 

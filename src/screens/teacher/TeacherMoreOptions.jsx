@@ -14,11 +14,6 @@ const sections = [
   },
   {
     icon: icons.Quran,
-    label: { en: 'Ayats', other: 'آیات' },
-    route: 'ayat'
-  },
-  {
-    icon: icons.Quran,
     label: { en: 'Surat', other: 'آیات' },
     route: 'surat'
   },
